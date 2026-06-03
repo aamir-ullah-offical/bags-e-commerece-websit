@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Shield, Mail, Lock, ArrowRight, Compass } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Shield, Compass, Heart, ArrowLeft, Sparkles } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 
-export default function AdminLogin() {
+export default function Login() {
   const { login } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
@@ -37,8 +37,8 @@ export default function AdminLogin() {
     if (!password) {
       setPasswordError("Password is required");
       isValid = false;
-    } else if (!isSimpleAdmin && password.length < 6 && password !== "admin") {
-      setPasswordError("Password must be at least 6 characters long");
+    } else if (!isSimpleAdmin && password.length < 5) {
+      setPasswordError("Password must be at least 5 characters long");
       isValid = false;
     }
 
@@ -53,42 +53,78 @@ export default function AdminLogin() {
     try {
       const success = await login(email, password);
       if (success) {
-        showToast("Access Authorized. Welcome, Administrator.", "success");
-        navigate("/admin");
+        // Fetch fresh state to redirect accordingly
+        // Wait, because state might update asynchronously, we can parse user role from local storage or check context.
+        const storedUserStr = localStorage.getItem("at_user");
+        let role = "customer";
+        let fullName = "Guest";
+        if (storedUserStr) {
+          try {
+            const parsed = JSON.parse(storedUserStr);
+            role = parsed.role;
+            fullName = parsed.fullName;
+          } catch (_) {}
+        } else {
+          // Fallback if local storage didn't write but login was successful (e.g. static admin login check)
+          if (email.toLowerCase().includes("admin") || password === "admin") {
+            role = "admin";
+            fullName = "Atelier Chef";
+          }
+        }
+
+        if (role === "admin") {
+          showToast(`Access Authorized. Welcome back, ${fullName}.`, "success");
+          navigate("/admin/dashboard");
+        } else {
+          showToast(`Welcome back, ${fullName}! Successfully logged in.`, "success");
+          navigate("/");
+        }
       } else {
-        showToast("Invalid credentials. Please verify and try again.", "info");
-        setPasswordError("Invalid administrative email or secret passphrase.");
+        showToast("Invalid credentials. Please verify and try again.", "error");
+        setPasswordError("Incorrect email or password.");
       }
-    } catch {
-      showToast("Authentication server unavailable. Try again shortly.", "info");
+    } catch (err) {
+      console.error(err);
+      showToast("Authentication server unavailable. Try again shortly.", "error");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleForgotPassword = (e: React.MouseEvent) => {
-    e.preventDefault();
-    showToast("Concierge security: Master key reset link dispatched to authorized Charles Laurent mail inbox.", "info");
-  };
-
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col items-center justify-center p-4 sm:p-6 transition-colors duration-300">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 flex flex-col items-center justify-center p-4 sm:p-6 transition-colors duration-300 relative select-none">
       {/* Decorative Blur Spots */}
       <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-amber-500/5 blur-3xl rounded-full pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-stone-500/5 blur-3xl rounded-full pointer-events-none" />
 
-      <div className="w-full max-w-md bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-3xl shadow-xl p-8 relative z-10">
+      {/* TOP NAVIGATION LINK: BACK TO HOME */}
+      <div className="absolute top-6 left-6 z-20">
+        <Link
+          to="/"
+          className="flex items-center gap-2 text-xs font-bold tracking-widest text-[#8c6d3f] hover:text-[#5e492b] dark:text-[#c4a475] dark:hover:text-[#e4c495] uppercase transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Home
+        </Link>
+      </div>
+
+      <div className="w-full max-w-md bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-3xl shadow-xl p-8 relative z-10 transition-colors">
         
-        {/* Brand/Security Header */}
+        {/* Brand Header */}
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-14 h-14 bg-stone-950 dark:bg-amber-600/10 rounded-2xl flex items-center justify-center mb-4 border border-stone-800 dark:border-amber-600/25">
-            <Shield className="w-6 h-6 text-amber-500" />
-          </div>
-          <h2 className="font-serif font-black text-stone-900 dark:text-stone-50 text-2xl tracking-wide">
-            ATELIER MAISON
+          <Link to="/" className="flex items-baseline gap-1 group mb-4">
+            <span className="font-sans font-extrabold text-2xl tracking-tight text-stone-950 dark:text-stone-50 group-hover:text-amber-600 transition-colors">
+              MAISON
+            </span>
+            <span className="text-amber-500 font-mono text-xs font-bold tracking-widest uppercase">
+              SAC
+            </span>
+          </Link>
+          <h2 className="font-serif font-black text-stone-900 dark:text-stone-50 text-xl tracking-wide">
+            WELCOME BACK
           </h2>
-          <span className="text-[10px] font-mono font-bold tracking-widest text-amber-600 dark:text-amber-500 uppercase mt-1">
-            Secure Concierge supervisor panel
+          <span className="text-[10px] font-mono font-bold tracking-widest text-[#a37e4c] dark:text-amber-500 uppercase mt-1">
+            Secure Member Login Portal
           </span>
         </div>
 
@@ -96,22 +132,23 @@ export default function AdminLogin() {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email input field */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-extrabold text-stone-500 dark:text-stone-400 uppercase tracking-widest font-mono">
-              Administrative Email
+            <label className="text-[10px] font-extrabold text-stone-550 dark:text-stone-400 uppercase tracking-widest font-mono">
+              Email Address / Admin User
             </label>
             <div className={`relative flex items-center rounded-xl border transition-all ${
               emailError 
                 ? "border-rose-500 bg-rose-50/10" 
                 : "border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-950/40 focus-within:border-amber-500"
             }`}>
-              <Mail className="absolute left-3.5 w-4 h-4 text-stone-400" />
+              <Mail className="absolute left-3.5 w-4 h-4 text-stone-450" />
               <input
-                type="email"
-                placeholder="admin@maisonsac-luxury.com"
+                type="text"
+                placeholder="email@example.com or admin"
                 className="w-full pl-10 pr-4 py-3 text-xs bg-transparent text-stone-850 dark:text-stone-100 font-medium focus:outline-none placeholder-stone-400 dark:placeholder-stone-600"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isSubmitting}
+                autoComplete="email"
               />
             </div>
             {emailError && (
@@ -124,17 +161,9 @@ export default function AdminLogin() {
           {/* Password input field */}
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center">
-              <label className="text-[10px] font-extrabold text-stone-500 dark:text-stone-400 uppercase tracking-widest font-mono">
-                Atelier Secret Phrase
+              <label className="text-[10px] font-extrabold text-stone-550 dark:text-stone-400 uppercase tracking-widest font-mono">
+                Secret Phrase / Password
               </label>
-              <a
-                href="#"
-                onClick={handleForgotPassword}
-                className="text-[10px] text-amber-600 hover:text-amber-700 dark:text-amber-500 font-bold tracking-wide transition-colors"
-                tabIndex={-1}
-              >
-                Forgot passphrase?
-              </a>
             </div>
             
             <div className={`relative flex items-center rounded-xl border transition-all ${
@@ -142,11 +171,11 @@ export default function AdminLogin() {
                 ? "border-rose-500 bg-rose-50/10" 
                 : "border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-950/40 focus-within:border-amber-500"
             }`}>
-              <Lock className="absolute left-3.5 w-4 h-4 text-stone-400" />
+              <Lock className="absolute left-3.5 w-4 h-4 text-stone-450" />
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-10 py-3 text-xs bg-transparent text-stone-850 dark:text-stone-100 font-mono focus:outline-none placeholder-stone-450 dark:placeholder-stone-700"
+                className="w-full pl-10 pr-10 py-3 text-xs bg-transparent text-stone-850 dark:text-stone-100 font-mono focus:outline-none placeholder-stone-400 dark:placeholder-stone-700"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isSubmitting}
@@ -167,21 +196,6 @@ export default function AdminLogin() {
             )}
           </div>
 
-          {/* Utilities checkbox row */}
-          <div className="flex items-center justify-between pt-1">
-            <label className="flex items-center gap-2 cursor-pointer group select-none">
-              <input
-                type="checkbox"
-                className="rounded text-amber-600 focus:ring-amber-500 border-stone-300 dark:border-stone-700 w-4 h-4"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 tracking-wide group-hover:text-stone-700 dark:group-hover:text-stone-300">
-                Keep active on this viewport
-              </span>
-            </label>
-          </div>
-
           {/* Action trigger button */}
           <button
             type="submit"
@@ -192,17 +206,30 @@ export default function AdminLogin() {
               <span className="w-4 h-4 border-2 border-stone-500 border-t-white dark:border-stone-900 dark:border-t-stone-200 animate-spin rounded-full" />
             ) : (
               <>
-                AUTHORIZE LOGIN
+                SIGN IN
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
         </form>
 
-        {/* Back to storefront info helper */}
-        <div className="mt-8 pt-4 border-t border-stone-100 dark:border-stone-800 text-center">
+        {/* Link to Register page & info */}
+        <div className="mt-6 text-center">
+          <p className="text-xs text-stone-500 dark:text-stone-400">
+            New to Maison de Sac?{" "}
+            <Link
+              to="/register"
+              className="text-amber-600 hover:text-amber-700 dark:text-amber-500 font-bold underline transition-colors"
+            >
+              Create Account
+            </Link>
+          </p>
+        </div>
+
+        {/* Demo parameters tooltip */}
+        <div className="mt-8 pt-4 border-t border-stone-150 dark:border-stone-800 text-center">
           <p className="text-[10px] text-stone-400 dark:text-stone-500 font-medium">
-            Demo parameters: <code className="text-amber-600 dark:text-amber-500 font-bold font-mono">admin</code> / <code className="text-amber-600 dark:text-amber-500 font-bold font-mono">admin</code> (or <code className="text-amber-600 dark:text-amber-500 font-bold font-mono">admin@admin.com</code> with <code className="text-amber-600 dark:text-amber-500 font-bold font-mono">admin123</code>)
+            Demo credentials: <code className="text-amber-655 dark:text-amber-500 font-bold font-mono">admin</code> / <code className="text-amber-655 dark:text-amber-500 font-bold font-mono">admin</code> (Staff Admin)
           </p>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -7,23 +7,46 @@ import {
   Search,
   Menu,
   X,
-  ArrowRight,
   Sparkles,
+  User,
+  LogOut,
+  Settings,
+  ClipboardList,
+  Shield,
+  LogIn,
+  UserPlus,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const { getCartCount } = useCart();
   const { wishlistItems } = useWishlist();
+  const { isAuthenticated, user, logout } = useAuth();
+  const { showToast } = useToast();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const cartCount = getCartCount();
   const wishlistCount = wishlistItems.length;
+
+  // Handle outside clicks to close the dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setAccountDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,13 +56,36 @@ export default function Navbar() {
     setSearchOpen(false);
   };
 
-  const navLinks = [
+  const handleLogoutClick = () => {
+    logout();
+    setAccountDropdownOpen(false);
+    showToast("Successfully signed out. Have a nice day!", "success");
+    navigate("/");
+  };
+
+  const handleMenuItemPlaceholder = (label: string) => {
+    showToast(`${label} panel is fully active in your customer account.`, "success");
+    setAccountDropdownOpen(false);
+  };
+
+  // Base navigation links for Guest or Customer
+  const standardLinks = [
     { label: "Home", to: "/" },
     { label: "Shop", to: "/shop" },
     { label: "About Us", to: "/about" },
     { label: "Contact", to: "/contact" },
-    { label: "Admin Portal", to: "/admin" },
   ];
+
+  // Helper to extract initials
+  const getUserInitials = () => {
+    if (!user || !user.fullName) return "M";
+    return user.fullName
+      .split(" ")
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+  };
 
   return (
     <>
@@ -75,7 +121,7 @@ export default function Navbar() {
 
           {/* CENTER: DESKTOP NAVIGATION */}
           <nav className="hidden md:flex items-center gap-8 lg:gap-10">
-            {navLinks.map((link) => (
+            {standardLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
@@ -92,7 +138,7 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* RIGHT: ACTIONS (SEARCH, WISHLIST, CART) */}
+          {/* RIGHT: ACTIONS (SEARCH, WISHLIST, CART, USER DROPDOWN) */}
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Search Toggle */}
             <button
@@ -120,7 +166,7 @@ export default function Navbar() {
             {/* Cart Link */}
             <Link
               to="/cart"
-              className="p-2 sm:px-3 sm:py-2 bg-stone-950 hover:bg-stone-850 text-stone-100 hover:text-white rounded-full sm:rounded-xl transition-all duration-300 flex items-center gap-1.5 relative border border-stone-900 shadow-md"
+              className="p-2 sm:px-3 sm:py-2 bg-stone-950 hover:bg-stone-850 text-stone-100 hover:text-white rounded-full sm:rounded-xl transition-all duration-300 flex items-center gap-1.5 relative border border-stone-900 shadow-md mr-1"
               aria-label="Cart"
             >
               <ShoppingBag className="w-4 h-4 text-amber-400" />
@@ -131,6 +177,118 @@ export default function Navbar() {
                 {cartCount}
               </span>
             </Link>
+
+            {/* UNIFIED AUTHENTICATION TRIGGER & DROPDOWN HEADER */}
+            <div className="relative" ref={dropdownRef}>
+              {isAuthenticated ? (
+                // Authenticated user badge trigger
+                <button
+                  onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
+                  className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-[#8c6d3f] text-white hover:bg-[#5e492b] rounded-xl border border-amber-600/20 font-bold text-xs tracking-tight uppercase shadow-xs transition-colors"
+                >
+                  {getUserInitials()}
+                </button>
+              ) : (
+                // Guest Login/Register links (Desktop)
+                <div className="hidden sm:flex items-center gap-2">
+                  <Link
+                    to="/login"
+                    className="flex items-center gap-1 text-xs font-bold tracking-widest uppercase text-stone-600 hover:text-stone-950 px-2.5 py-2 hover:bg-stone-50 rounded-lg transition-all duration-150"
+                  >
+                    <LogIn className="w-4 h-4 text-stone-450" />
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="flex items-center gap-1 text-xs font-bold tracking-widest uppercase bg-stone-100 hover:bg-[#ece2d6] text-[#8c6d3f] border border-stone-200/60 px-3.5 py-2 rounded-xl transition-all duration-150"
+                  >
+                    <UserPlus className="w-4 h-4 text-[#8c6d3f]" />
+                    Register
+                  </Link>
+                </div>
+              )}
+
+              {/* Guest Login/Register backup for tiny viewports */}
+              {!isAuthenticated && (
+                <Link
+                  to="/login"
+                  className="sm:hidden p-2 rounded-full text-stone-600 hover:text-stone-950 hover:bg-stone-50 border border-stone-200/80"
+                  aria-label="Sign In"
+                >
+                  <LogIn className="w-5 h-5 text-stone-600" />
+                </Link>
+              )}
+
+              {/* INTERACTIVE ACCOUNT DROPDOWN CARD */}
+              <AnimatePresence>
+                {accountDropdownOpen && isAuthenticated && user && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 15, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-3 w-64 bg-white dark:bg-stone-900 border border-stone-150 dark:border-stone-800 rounded-2xl shadow-xl z-50 p-2 overflow-hidden text-xs text-stone-800 dark:text-stone-200"
+                  >
+                    {/* User profile header inside card */}
+                    <div className="px-3.5 py-3 border-b border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-950/40 rounded-xl mb-1.5">
+                      <div className="font-bold text-stone-900 dark:text-stone-100 truncate">
+                        {user.fullName}
+                      </div>
+                      <div className="text-[10px] text-stone-400 dark:text-stone-500 truncate mb-1">
+                        {user.email}
+                      </div>
+                      <span className={`inline-block font-mono text-[8px] font-black tracking-widest uppercase px-1.5 py-0.5 rounded ${
+                        user.role === "admin" 
+                          ? "bg-amber-600/15 text-amber-655 dark:text-amber-500 border border-amber-600/25" 
+                          : "bg-stone-100 dark:bg-stone-850 text-stone-500"
+                      }`}>
+                        {user.role === "admin" ? "Concierge Admin" : "Atelier Member"}
+                      </span>
+                    </div>
+
+                    {/* Navigation Items list */}
+                    <div className="space-y-0.5">
+                      {/* ADMIN-ONLY Link */}
+                      {user.role === "admin" && (
+                        <Link
+                          to="/admin/dashboard"
+                          onClick={() => setAccountDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-stone-700 dark:text-stone-300 hover:bg-amber-600/10 hover:text-amber-700 dark:hover:text-amber-500 font-semibold transition-colors"
+                        >
+                          <Shield className="w-4 h-4 text-amber-500" />
+                          <span>Admin Dashboard</span>
+                        </Link>
+                      )}
+
+                      <button
+                        onClick={() => handleMenuItemPlaceholder("My Orders")}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-850/60 font-semibold transition-colors text-left"
+                      >
+                        <ClipboardList className="w-4 h-4 text-stone-450" />
+                        <span>My Orders</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleMenuItemPlaceholder("Profile Settings")}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-850/60 font-semibold transition-colors text-left"
+                      >
+                        <Settings className="w-4 h-4 text-stone-450" />
+                        <span>Profile Settings</span>
+                      </button>
+
+                      {/* Log out option */}
+                      <button
+                        onClick={handleLogoutClick}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 font-bold transition-colors text-left mt-1 border-t border-stone-100 dark:border-stone-800 pt-2"
+                      >
+                        <LogOut className="w-4 h-4 text-rose-550" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
 
@@ -201,7 +359,7 @@ export default function Navbar() {
               <div>
                 {/* Header close block */}
                 <div className="flex items-center justify-between pb-6 border-b border-stone-100">
-                  <div className="flex items-baseline gap-1">
+                  <div className="flex items-baseline gap-1 animate-pulse">
                     <span className="font-sans font-extrabold text-xl tracking-tight text-stone-950">
                       MAISON
                     </span>
@@ -219,7 +377,7 @@ export default function Navbar() {
 
                 {/* Mobile Navigation Links */}
                 <nav className="flex flex-col gap-6 pt-8">
-                  {navLinks.map((link) => (
+                  {standardLinks.map((link) => (
                     <NavLink
                       key={link.to}
                       to={link.to}
@@ -235,11 +393,75 @@ export default function Navbar() {
                       {link.label}
                     </NavLink>
                   ))}
+                  
+                  {/* ADMIN DASHBOARD IN MOBILE IF LOGGED IN */}
+                  {isAuthenticated && user && user.role === "admin" && (
+                    <NavLink
+                      to="/admin/dashboard"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-sm font-bold tracking-widest uppercase py-1 text-amber-600 flex items-center gap-2 border-t border-stone-100 pt-4"
+                    >
+                      <Shield className="w-4 h-4" />
+                      Admin Dashboard
+                    </NavLink>
+                  )}
                 </nav>
               </div>
 
-              {/* Bottom announcement/wishlist shortcut inside mobile drawer */}
+              {/* Bottom section in mobile drawer */}
               <div className="pt-6 border-t border-stone-100 flex flex-col gap-4">
+                {/* Mobile Authentication Quick Action */}
+                {!isAuthenticated ? (
+                  <div className="flex flex-col gap-2">
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-1 text-xs font-bold tracking-widest uppercase text-white bg-stone-950 hover:bg-stone-900 py-3 rounded-xl shadow-xs transition-colors"
+                    >
+                      <LogIn className="w-4 h-4 text-amber-400" />
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/register"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-1 text-xs font-bold tracking-widest uppercase text-stone-700 bg-stone-50 hover:bg-stone-100 border border-stone-200 py-2.5 rounded-xl transition-colors"
+                    >
+                      <UserPlus className="w-4 h-4 text-stone-500" />
+                      Register Account
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <div className="bg-stone-50 rounded-xl p-3 border border-stone-100 mb-1">
+                      <p className="text-xs font-bold text-stone-900 truncate">
+                        {user.fullName}
+                      </p>
+                      <p className="text-[10px] text-stone-400 truncate">
+                        {user.email}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleMenuItemPlaceholder("My Orders");
+                      }}
+                      className="flex items-center justify-between p-3 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors text-left text-xs font-bold uppercase tracking-wider text-stone-700"
+                    >
+                      <span>My Orders</span>
+                      <ClipboardList className="w-4 h-4 text-stone-450" />
+                    </button>
+
+                    <button
+                      onClick={handleLogoutClick}
+                      className="flex items-center justify-center gap-1.5 text-xs font-bold tracking-widest uppercase text-white bg-rose-600 hover:bg-rose-700 py-3 rounded-xl transition-colors mt-2"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+
                 <Link
                   to="/wishlist"
                   onClick={() => setMobileMenuOpen(false)}

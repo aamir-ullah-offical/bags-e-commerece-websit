@@ -4,10 +4,11 @@ import { useAuth } from "../context/AuthContext";
 
 interface Props {
   children: React.ReactNode;
+  allowedRoles?: ("admin" | "customer")[];
 }
 
-export default function ProtectedRoute({ children }: Props) {
-  const { isAuthenticated, isLoading } = useAuth();
+export default function ProtectedRoute({ children, allowedRoles }: Props) {
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -23,7 +24,13 @@ export default function ProtectedRoute({ children }: Props) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/admin/login" replace />;
+    // Redirect to unified main portal login
+    return <Navigate to="/login" replace />;
+  }
+
+  // Enforce role-based access condition
+  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
