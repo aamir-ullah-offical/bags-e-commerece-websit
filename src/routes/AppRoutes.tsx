@@ -7,6 +7,7 @@ import Cart from "../pages/Cart";
 import Wishlist from "../pages/Wishlist";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
+import AdminDashboard from "../pages/AdminDashboard";
 import NotFound from "../pages/NotFound";
 
 export default function AppRoutes() {
@@ -23,6 +24,7 @@ export default function AppRoutes() {
           <Route path="contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Route>
+        <Route path="admin" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   );

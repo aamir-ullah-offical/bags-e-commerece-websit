@@ -4,23 +4,41 @@ import categoriesData from "../data/categories.json";
 import bannersData from "../data/banners.json";
 import testimonialsData from "../data/testimonials.json";
 
-// Typed casts
-const productsList = productsData as Product[];
-const categoriesList = categoriesData as Category[];
-const bannersList = bannersData as Banner[];
-const testimonialsList = testimonialsData as Testimonial[];
+// Dynamic storage getters/setters helper
+const loadLocalOrCreate = <T>(key: string, backup: T): T => {
+  const data = localStorage.getItem(key);
+  if (data) {
+    try {
+      return JSON.parse(data);
+    } catch {
+      return backup;
+    }
+  }
+  // Initialize on first access
+  localStorage.setItem(key, JSON.stringify(backup));
+  return backup;
+};
+
+let productsList = loadLocalOrCreate("mds_products", productsData as Product[]);
+let categoriesList = loadLocalOrCreate("mds_categories", categoriesData as Category[]);
+let bannersList = loadLocalOrCreate("mds_banners", bannersData as Banner[]);
+let testimonialsList = loadLocalOrCreate("mds_testimonials", testimonialsData as Testimonial[]);
 
 export const productService = {
   getProducts: (): Product[] => {
+    // Always refresh memory state with storage
+    productsList = loadLocalOrCreate("mds_products", productsData as Product[]);
     return productsList;
   },
 
   getProductById: (id: number): Product | undefined => {
+    productsList = productService.getProducts();
     return productsList.find((p) => p.id === id);
   },
 
   getCategories: (): Category[] => {
-    // Dynamic counts could also be injected here
+    categoriesList = loadLocalOrCreate("mds_categories", categoriesData as Category[]);
+    productsList = productService.getProducts();
     return categoriesList.map((cat) => ({
       ...cat,
       count: productsList.filter((p) => p.category === cat.name).length,
@@ -28,35 +46,62 @@ export const productService = {
   },
 
   getBanners: (): Banner[] => {
+    bannersList = loadLocalOrCreate("mds_banners", bannersData as Banner[]);
     return bannersList;
   },
 
   getTestimonials: (): Testimonial[] => {
+    testimonialsList = loadLocalOrCreate("mds_testimonials", testimonialsData as Testimonial[]);
     return testimonialsList;
   },
 
   getRelatedProducts: (product: Product, limit = 4): Product[] => {
+    productsList = productService.getProducts();
     return productsList
       .filter((p) => p.category === product.category && p.id !== product.id)
       .slice(0, limit);
   },
 
   getTopSelling: (): Product[] => {
+    productsList = productService.getProducts();
     return productsList.filter((p) => p.isTopSelling);
   },
 
   getNewArrivals: (): Product[] => {
-    // Sort descending by date
+    productsList = productService.getProducts();
     return [...productsList]
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   },
 
   getFeaturedProducts: (): Product[] => {
+    productsList = productService.getProducts();
     return productsList.filter((p) => p.isFeatured);
   },
 
   getTopPicks: (): Product[] => {
+    productsList = productService.getProducts();
     return productsList.filter((p) => p.isTopPick);
+  },
+
+  // Save triggers from Admin Dashboard
+  saveProducts: (list: Product[]) => {
+    productsList = list;
+    localStorage.setItem("mds_products", JSON.stringify(list));
+  },
+
+  saveCategories: (list: Category[]) => {
+    categoriesList = list;
+    localStorage.setItem("mds_categories", JSON.stringify(list));
+  },
+
+  saveBanners: (list: Banner[]) => {
+    bannersList = list;
+    localStorage.setItem("mds_banners", JSON.stringify(list));
+  },
+
+  saveTestimonials: (list: Testimonial[]) => {
+    testimonialsList = list;
+    localStorage.setItem("mds_testimonials", JSON.stringify(list));
   },
 
   // Advanced query search & filter
@@ -73,6 +118,7 @@ export const productService = {
     inStockOnly?: boolean;
     sort?: string;
   }): Product[] => {
+    productsList = productService.getProducts();
     let result = [...productsList];
 
     // Real-time search
