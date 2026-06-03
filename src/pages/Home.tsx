@@ -45,7 +45,7 @@ export default function Home() {
   }, [banners.length]);
 
   return (
-    <div id="home-page" className="bg-stone-50 overflow-hidden">
+    <div id="home-page" className="bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 overflow-hidden transition-colors duration-300">
       {/* 1. HERO SLIDER */}
       <section className="relative h-[80vh] sm:h-[85vh] bg-stone-900 border-b border-stone-800">
         <AnimatePresence mode="wait">
@@ -162,10 +162,10 @@ export default function Home() {
       {/* 2. CATEGORIES SECTIONS */}
       <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="home-categories">
         <div className="flex flex-col items-center text-center mb-12">
-          <span className="text-[10px] font-bold tracking-widest text-amber-600 uppercase font-mono bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
+          <span className="text-[10px] font-bold tracking-widest text-[#a37e4c] dark:text-amber-400 uppercase font-mono bg-amber-50 dark:bg-amber-950/20 px-3 py-1 rounded-full border border-amber-100 dark:border-amber-900/30">
             Design Classifications
           </span>
-          <h2 className="font-sans font-extrabold text-3xl sm:text-4xl text-stone-950 tracking-tight mt-3">
+          <h2 className="font-sans font-extrabold text-3xl sm:text-4xl text-stone-950 dark:text-white tracking-tight mt-3">
             Shop By Bag Architecture
           </h2>
           <div className="w-12 h-1 bg-amber-400 mt-4 rounded-full" />
@@ -177,7 +177,7 @@ export default function Home() {
             <Link
               key={cat.id}
               to={`/shop?category=${encodeURIComponent(cat.name)}`}
-              className="group relative h-48 sm:h-56 rounded-2xl overflow-hidden bg-white hover:shadow-lg transition-all duration-300 border border-stone-100 flex flex-col justify-end"
+              className="group relative h-48 sm:h-56 rounded-2xl overflow-hidden bg-white dark:bg-stone-900 hover:shadow-lg transition-all duration-300 border border-stone-100 dark:border-stone-850 flex flex-col justify-end"
             >
               <img
                 src={cat.image}
@@ -186,16 +186,16 @@ export default function Home() {
                 className="absolute inset-0 w-full h-full object-cover object-center filter grayscale group-hover:grayscale-0 group-hover:scale-103 transition-all duration-500"
               />
               {/* Bottom glassmorphic overlay strip */}
-              <div className="relative p-3.5 sm:p-5 bg-white/90 backdrop-blur-md border-t border-stone-100 m-3 rounded-xl flex items-center justify-between shadow-sm group-hover:border-amber-105 transition-colors">
+              <div className="relative p-3.5 sm:p-5 bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border border-stone-100 dark:border-stone-800 m-3 rounded-xl flex items-center justify-between shadow-sm group-hover:border-amber-500 transition-colors">
                 <div>
-                  <h3 className="font-sans font-bold text-xs sm:text-sm text-stone-900 leading-tight">
+                  <h3 className="font-sans font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 leading-tight">
                     {cat.name}
                   </h3>
-                  <span className="text-[10px] text-stone-400 font-medium font-mono">
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium font-mono">
                     {cat.count} Products
                   </span>
                 </div>
-                <div className="p-1.5 rounded-lg bg-stone-900 group-hover:bg-amber-500 text-white group-hover:text-stone-900 transition-colors">
+                <div className="p-1.5 rounded-lg bg-stone-900 dark:bg-amber-600 group-hover:bg-amber-550 text-white group-hover:text-stone-950 transition-colors">
                   <ArrowRight className="w-3.5 h-3.5" />
                 </div>
               </div>
@@ -240,10 +240,10 @@ export default function Home() {
       {/* 4. FEATURED PRODUCTS GRID */}
       <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-fade-in" id="home-featured">
         <div className="flex flex-col items-center text-center mb-12">
-          <span className="text-[10px] font-bold tracking-widest text-amber-600 uppercase font-mono bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
+          <span className="text-[10px] font-bold tracking-widest text-[#a37e4c] dark:text-amber-400 uppercase font-mono bg-amber-50 dark:bg-amber-955 px-3 py-1 rounded-full border border-amber-100 dark:border-amber-900/30">
             Selected Craft
           </span>
-          <h2 className="font-sans font-extrabold text-3xl sm:text-4xl text-stone-950 tracking-tight mt-3">
+          <h2 className="font-sans font-extrabold text-3xl sm:text-4xl text-stone-950 dark:text-white tracking-tight mt-3">
             Featured Capsule Products
           </h2>
           <div className="w-12 h-1 bg-amber-400 mt-4 rounded-full" />
@@ -292,20 +292,20 @@ export default function Home() {
       </section>
 
       {/* 6. TOP SELLING PRODUCTS */}
-      <section className="py-20 bg-stone-100 border-y border-stone-200" id="home-topselling">
+      <section className="py-20 bg-stone-100 dark:bg-stone-900 border-y border-stone-200 dark:border-stone-800" id="home-topselling">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-baseline justify-between mb-10 pb-4 border-b border-stone-200">
+          <div className="flex items-baseline justify-between mb-10 pb-4 border-b border-stone-205 dark:border-stone-800">
             <div>
-              <span className="text-[10px] font-bold tracking-widest text-amber-655 text-amber-600 uppercase font-mono">
+              <span className="text-[10px] font-bold tracking-widest text-amber-600 dark:text-amber-400 uppercase font-mono">
                 Market Favorites
               </span>
-              <h2 className="font-sans font-extrabold text-2xl sm:text-3xl text-stone-900 tracking-tight mt-1.5">
+              <h2 className="font-sans font-extrabold text-2xl sm:text-3xl text-stone-900 dark:text-white tracking-tight mt-1.5">
                 Top Selling Collections
               </h2>
             </div>
             <Link
               to="/shop?sort=Best Selling"
-              className="text-xs font-bold tracking-widest uppercase text-stone-600 hover:text-stone-950 transition-colors"
+              className="text-xs font-bold tracking-widest uppercase text-stone-605 dark:text-amber-400 hover:text-stone-950 dark:hover:text-white transition-colors"
             >
               Browse Best Sellers
             </Link>
@@ -326,10 +326,10 @@ export default function Home() {
       {/* 7. NEW ARRIVALS PRODUCTS */}
       <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="home-newarrivals">
         <div className="flex flex-col items-center text-center mb-12">
-          <span className="text-[10px] font-bold tracking-widest text-amber-600 uppercase font-mono bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
+          <span className="text-[10px] font-bold tracking-widest text-[#a37e4c] dark:text-amber-400 uppercase font-mono bg-amber-50 dark:bg-amber-955 px-3 py-1 rounded-full border border-amber-100 dark:border-amber-900/40">
             FRESH RELEASES
           </span>
-          <h2 className="font-sans font-extrabold text-3xl sm:text-4xl text-stone-950 tracking-tight mt-3">
+          <h2 className="font-sans font-extrabold text-3xl sm:text-4xl text-stone-950 dark:text-white tracking-tight mt-3">
             New Arrival Showcase
           </h2>
           <div className="w-12 h-1 bg-amber-400 mt-4 rounded-full" />
@@ -347,63 +347,63 @@ export default function Home() {
       </section>
 
       {/* 8. WHY CHOOSE US (VALUES SECTIONS) */}
-      <section className="py-20 bg-white border-t border-stone-100" id="home-values">
+      <section className="py-20 bg-white dark:bg-stone-950 border-t border-stone-100 dark:border-stone-850" id="home-values">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center text-center mb-16">
-            <span className="text-[10px] font-bold tracking-widest text-amber-635 text-amber-600 uppercase font-mono bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
+            <span className="text-[10px] font-bold tracking-widest text-[#a37e4c] dark:text-amber-400 uppercase font-mono bg-amber-50 dark:bg-amber-955 px-3 py-1 rounded-full border border-amber-100 dark:border-amber-900/30">
               The Atelier Philosophy
             </span>
-            <h2 className="font-sans font-extrabold text-3xl sm:text-4xl text-stone-900 tracking-tight mt-3">
+            <h2 className="font-sans font-extrabold text-3xl sm:text-4xl text-stone-900 dark:text-white tracking-tight mt-3">
               Why Discerning Buyers Choose Us
             </h2>
             <div className="w-12 h-1 bg-amber-400 mt-4 rounded-full" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="flex flex-col items-start gap-4 p-6 rounded-2xl bg-stone-50 border border-stone-100">
-              <div className="p-3 rounded-xl bg-stone-900 text-amber-500 shadow-md">
+            <div className="flex flex-col items-start gap-4 p-6 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-850">
+              <div className="p-3 rounded-xl bg-stone-900 dark:bg-stone-950 text-amber-500 shadow-md">
                 <Award className="w-6 h-6" />
               </div>
-              <h3 className="font-sans font-bold text-base text-stone-900">
+              <h3 className="font-sans font-bold text-base text-stone-900 dark:text-stone-100">
                 Premium Grade Sourcing
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed">
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
                 Vegetable-tanned full-grain cowhide leather, custom alloy hardware, and organic canvas threads, sourced exclusively from certified ethical suppliers.
               </p>
             </div>
 
-            <div className="flex flex-col items-start gap-4 p-6 rounded-2xl bg-stone-50 border border-stone-100">
-              <div className="p-3 rounded-xl bg-stone-900 text-amber-500 shadow-md">
+            <div className="flex flex-col items-start gap-4 p-6 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-850">
+              <div className="p-3 rounded-xl bg-stone-900 dark:bg-stone-950 text-amber-500 shadow-md">
                 <Truck className="w-6 h-6" />
               </div>
-              <h3 className="font-sans font-bold text-base text-stone-900">
+              <h3 className="font-sans font-bold text-base text-stone-900 dark:text-stone-100">
                 Tracked Express Delivery
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed">
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
                 All order sets are processed in high-security boxes and dispatched via registered express courier, offering continuous SMS and GPS tracking.
               </p>
             </div>
 
-            <div className="flex flex-col items-start gap-4 p-6 rounded-2xl bg-stone-50 border border-stone-100">
-              <div className="p-3 rounded-xl bg-stone-900 text-amber-500 shadow-md">
+            <div className="flex flex-col items-start gap-4 p-6 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-850">
+              <div className="p-3 rounded-xl bg-stone-900 dark:bg-stone-950 text-amber-500 shadow-md">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h3 className="font-sans font-bold text-base text-stone-900">
+              <h3 className="font-sans font-bold text-base text-stone-900 dark:text-stone-100">
                 Fully Encrypted Payments
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed">
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
                 Our electronic gateways adhere fully to international safety standards, incorporating certified multi-channel security controls.
               </p>
             </div>
 
-            <div className="flex flex-col items-start gap-4 p-6 rounded-2xl bg-stone-50 border border-stone-100">
-              <div className="p-3 rounded-xl bg-stone-900 text-amber-500 shadow-md">
+            <div className="flex flex-col items-start gap-4 p-6 rounded-2xl bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-850">
+              <div className="p-3 rounded-xl bg-stone-900 dark:bg-stone-950 text-amber-500 shadow-md">
                 <RotateCcw className="w-6 h-6" />
               </div>
-              <h3 className="font-sans font-bold text-base text-stone-900">
+              <h3 className="font-sans font-bold text-base text-stone-900 dark:text-stone-100">
                 Easy Refund Policy
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed">
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
                 If the stitching density, feel, or sizing doesn't meet your absolute criteria, return the item within 30 days for a full, hassle-free refund.
               </p>
             </div>

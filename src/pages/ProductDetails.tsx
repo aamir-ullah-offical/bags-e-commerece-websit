@@ -121,7 +121,7 @@ export default function ProductDetails() {
   };
 
   return (
-    <div id="product-details-page" className="min-h-screen bg-stone-50 pb-20">
+    <div id="product-details-page" className="min-h-screen bg-stone-50 dark:bg-stone-950 pb-20 text-stone-900 dark:text-stone-100 transition-colors">
       <Breadcrumb
         items={[
           { label: "Shop", url: "/shop" },
@@ -131,7 +131,7 @@ export default function ProductDetails() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 bg-white rounded-3xl p-6 sm:p-10 border border-stone-150 shadow-xs">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 bg-white dark:bg-stone-900 rounded-3xl p-6 sm:p-10 border border-stone-150 dark:border-stone-800 shadow-xs">
           
           {/* LEFT CONTAINER: GALLERIES AND THUMBNAILS (5 Cols) */}
           <div className="lg:col-span-5 flex flex-col gap-4">
@@ -345,15 +345,15 @@ export default function ProductDetails() {
         </div>
 
         {/* DETAILS DESCRIPTION TABS SPECIFICATIONS PANEL */}
-        <section className="mt-12 bg-white rounded-3xl border border-stone-150 p-6 sm:p-10 shadow-xs" id="product-panels">
+        <section className="mt-12 bg-white dark:bg-stone-900 rounded-3xl border border-stone-150 dark:border-stone-800 p-6 sm:p-10 shadow-xs" id="product-panels">
           {/* Tabs row selectors */}
           <div className="flex border-b border-stone-200 gap-4 mb-8">
             <button
               onClick={() => setActiveTab("desc")}
               className={`pb-3 font-semibold text-xs tracking-widest uppercase border-b-2 flex items-center gap-1.5 transition-all ${
                 activeTab === "desc"
-                  ? "border-amber-500 text-stone-900"
-                  : "border-transparent text-stone-400 hover:text-stone-700"
+                  ? "border-amber-500 text-stone-900 dark:text-white"
+                  : "border-transparent text-stone-400 dark:text-stone-550 hover:text-stone-700 dark:hover:text-stone-300"
               }`}
             >
               <Compass className="w-4 h-4" /> Description
@@ -362,8 +362,8 @@ export default function ProductDetails() {
               onClick={() => setActiveTab("spec")}
               className={`pb-3 font-semibold text-xs tracking-widest uppercase border-b-2 flex items-center gap-1.5 transition-all ${
                 activeTab === "spec"
-                  ? "border-amber-500 text-stone-900"
-                  : "border-transparent text-stone-400 hover:text-stone-700"
+                  ? "border-amber-500 text-stone-900 dark:text-white"
+                  : "border-transparent text-stone-400 dark:text-stone-550 hover:text-stone-700 dark:hover:text-stone-300"
               }`}
             >
               <FileSpreadsheet className="w-4 h-4" /> Specifications
@@ -372,8 +372,8 @@ export default function ProductDetails() {
               onClick={() => setActiveTab("reviews")}
               className={`pb-3 font-semibold text-xs tracking-widest uppercase border-b-2 flex items-center gap-1.5 transition-all ${
                 activeTab === "reviews"
-                  ? "border-amber-500 text-stone-900"
-                  : "border-transparent text-stone-400 hover:text-stone-700"
+                  ? "border-amber-500 text-stone-900 dark:text-white"
+                  : "border-transparent text-stone-400 dark:text-stone-550 hover:text-stone-700 dark:hover:text-stone-300"
               }`}
             >
               <MessageSquareCode className="w-4 h-4" /> Reviews ({product.reviews.length})
@@ -407,23 +407,23 @@ export default function ProductDetails() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="max-w-2xl bg-stone-50 rounded-2xl border border-stone-105 p-6"
+                  className="max-w-2xl bg-stone-50 dark:bg-stone-955 rounded-2xl border border-stone-105 dark:border-stone-850 p-6"
                 >
-                  <table className="w-full text-xs text-stone-650">
+                  <table className="w-full text-xs text-stone-650 dark:text-stone-300">
                     <tbody>
                       {Object.entries(product.specifications).map(([key, val]) => (
-                        <tr key={key} className="border-b border-stone-200/50 last:border-none">
-                          <td className="py-2.5 font-bold text-stone-500 uppercase tracking-wider">{key}</td>
-                          <td className="py-2.5 text-stone-900 font-semibold text-right">{val}</td>
+                        <tr key={key} className="border-b border-stone-200/50 dark:border-stone-800/60 last:border-none">
+                          <td className="py-2.5 font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">{key}</td>
+                          <td className="py-2.5 text-stone-900 dark:text-stone-100 font-semibold text-right">{val}</td>
                         </tr>
                       ))}
-                      <tr className="border-b border-stone-200/50">
-                        <td className="py-2.5 font-bold text-stone-500 uppercase tracking-wider">Primary Colorway</td>
-                        <td className="py-2.5 text-stone-900 font-semibold text-right">{product.color}</td>
+                      <tr className="border-b border-stone-200/50 dark:border-stone-800/60">
+                        <td className="py-2.5 font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">Primary Colorway</td>
+                        <td className="py-2.5 text-stone-900 dark:text-stone-100 font-semibold text-right">{product.color}</td>
                       </tr>
                       <tr>
-                        <td className="py-2.5 font-bold text-stone-500 uppercase tracking-wider">Main Shell Fiber</td>
-                        <td className="py-2.5 text-stone-900 font-semibold text-right">{product.material}</td>
+                        <td className="py-2.5 font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">Main Shell Fiber</td>
+                        <td className="py-2.5 text-stone-900 dark:text-stone-100 font-semibold text-right">{product.material}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -438,43 +438,43 @@ export default function ProductDetails() {
                   exit={{ opacity: 0 }}
                   className="space-y-6"
                 >
-                  <div className="flex items-center gap-6 pb-6 border-b border-stone-100 flex-col sm:flex-row">
-                    <div className="text-center p-6 bg-stone-50 rounded-2xl border border-stone-100 shrink-0">
-                      <span className="text-4xl font-extrabold text-stone-900 block font-mono">
+                  <div className="flex items-center gap-6 pb-6 border-b border-stone-100 dark:border-stone-850 flex-col sm:flex-row">
+                    <div className="text-center p-6 bg-stone-50 dark:bg-stone-950 rounded-2xl border border-stone-100 dark:border-stone-850 shrink-0">
+                      <span className="text-4xl font-extrabold text-stone-900 dark:text-white block font-mono">
                         {product.rating.toFixed(1)}
                       </span>
-                      <span className="text-stone-300 font-bold">/</span> <span className="text-sm text-stone-400 font-semibold font-mono">5.0</span>
+                      <span className="text-stone-300 dark:text-stone-700 font-bold">/</span> <span className="text-sm text-stone-400 dark:text-stone-500 font-semibold font-mono">5.0</span>
                       <div className="mt-2 text-center">
                         <Rating value={product.rating} max={5} size={14} />
                       </div>
                     </div>
                     <div>
-                      <h4 className="font-sans font-bold text-sm text-stone-900 mb-1">Authentic Buyer Reviews Only</h4>
-                      <p className="text-xs text-stone-500 leading-relaxed max-w-md">
+                      <h4 className="font-sans font-bold text-sm text-stone-900 dark:text-stone-105 mb-1">Authentic Buyer Reviews Only</h4>
+                      <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed max-w-md">
                         Every single review displayed below represents an audited transaction. Customers who successfully checkout on Maison de Sac are invited to rate stitch alignment, leather weight, and carrier speed.
                       </p>
                     </div>
                   </div>
 
                   {product.reviews.length > 0 ? (
-                    <div className="divide-y divide-stone-100">
+                    <div className="divide-y divide-stone-100 dark:divide-stone-800">
                       {product.reviews.map((rev, idx) => (
                         <div key={idx} className="py-5 first:pt-0 last:pb-0">
                           <div className="flex justify-between items-baseline mb-2">
-                            <h4 className="font-sans font-bold text-xs text-stone-900">{rev.name}</h4>
-                            <span className="text-xxs font-mono text-stone-400">{rev.date}</span>
+                            <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-200">{rev.name}</h4>
+                            <span className="text-xxs font-mono text-stone-400 dark:text-stone-500">{rev.date}</span>
                           </div>
                           <div className="mb-2">
                             <Rating value={rev.rating} size={11} />
                           </div>
-                          <p className="text-xs text-stone-600 leading-relaxed font-serif max-w-2xl italic">
+                          <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-serif max-w-2xl italic">
                             "{rev.comment}"
                           </p>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="py-6 text-center text-stone-400 text-xs font-medium">
+                    <div className="py-6 text-center text-stone-400 dark:text-stone-500 text-xs font-medium">
                       No ratings recorded for this new arrival capsule release yet. Purchase items to share feedback!
                     </div>
                   )}

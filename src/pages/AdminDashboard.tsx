@@ -288,16 +288,16 @@ export default function AdminDashboard() {
 
       {/* ================= 1. RE-USE COLLAPSIBLE SIDEBAR ================= */}
       <aside
-        className={`h-full bg-stone-900 border-r border-stone-850 flex flex-col justify-between transition-all duration-300 z-50 flex-shrink-0 fixed lg:static inset-y-0 left-0 ${
+        className={`h-full bg-white dark:bg-stone-900 border-r border-stone-200 dark:border-stone-850 flex flex-col justify-between transition-all duration-300 z-50 flex-shrink-0 fixed lg:static inset-y-0 left-0 ${
           mobileSidebarOpen ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0"
         } ${sidebarCollapsed ? "lg:w-20" : "lg:w-64"}`}
       >
         <div className="flex flex-col h-full overflow-hidden">
           {/* Logo Brand Header */}
-          <div className="h-20 border-b border-stone-850 px-5 flex items-center justify-between flex-shrink-0">
+          <div className="h-20 border-b border-stone-200 dark:border-stone-850 px-5 flex items-center justify-between flex-shrink-0">
             {(!sidebarCollapsed || mobileSidebarOpen) ? (
               <div className="flex items-baseline gap-1.5 animate-fadeIn">
-                <span className="font-sans font-black text-white text-lg tracking-wider">
+                <span className="font-sans font-black text-stone-900 dark:text-white text-lg tracking-wider">
                   MDS ATELIER
                 </span>
                 <span className="text-amber-500 font-mono text-[8px] font-extrabold tracking-widest uppercase">
@@ -309,7 +309,7 @@ export default function AdminDashboard() {
             )}
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-1.5 rounded-lg hover:bg-stone-800 text-stone-400 hover:text-white transition-colors hidden lg:block"
+              className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-colors hidden lg:block"
               title="Collapse Panel"
             >
               {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -318,15 +318,15 @@ export default function AdminDashboard() {
 
           {/* Connected Admin profile badge */}
           {(!sidebarCollapsed || mobileSidebarOpen) && (
-            <div className="px-5 py-4 border-b border-stone-850/60 flex items-center gap-3 bg-stone-950/20 flex-shrink-0">
+            <div className="px-5 py-4 border-b border-stone-200 dark:border-stone-850/60 flex items-center gap-3 bg-stone-50/50 dark:bg-stone-950/20 flex-shrink-0">
               <img
                 src={adminProfile.profileImage || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=150&h=150&q=80"}
                 alt=""
-                className="w-10 h-10 rounded-full object-cover border border-stone-700 shadow-sm flex-shrink-0"
+                className="w-10 h-10 rounded-full object-cover border border-stone-250 dark:border-stone-700 shadow-sm flex-shrink-0"
               />
               <div className="flex flex-col min-w-0">
-                <span className="text-xs font-bold text-stone-100 font-sans tracking-wide truncate">{adminProfile.fullName}</span>
-                <span className="text-[10px] text-stone-500 font-medium font-mono uppercase tracking-widest mt-0.5">Brand Supervisor</span>
+                <span className="text-xs font-bold text-stone-800 dark:text-stone-100 font-sans tracking-wide truncate">{adminProfile.fullName}</span>
+                <span className="text-[10px] text-stone-550 dark:text-stone-500 font-medium font-mono uppercase tracking-widest mt-0.5">Brand Supervisor</span>
               </div>
             </div>
           )}
@@ -346,11 +346,11 @@ export default function AdminDashboard() {
                   className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold tracking-wide transition-all ${
                     isActive
                       ? "bg-amber-600 text-stone-950 font-extrabold shadow-md shadow-amber-600/10"
-                      : "text-stone-400 hover:bg-stone-800/60 hover:text-stone-100"
+                      : "text-stone-650 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800/60 hover:text-stone-900 dark:hover:text-stone-100"
                   }`}
                   title={item.label}
                 >
-                  <IconComp className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-stone-950" : "text-stone-400"}`} />
+                  <IconComp className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-stone-950" : "text-stone-400 dark:text-stone-400"}`} />
                   {(!sidebarCollapsed || mobileSidebarOpen) && (
                     <span className="truncate">{item.label}</span>
                   )}
@@ -360,10 +360,10 @@ export default function AdminDashboard() {
           </nav>
 
           {/* Exit link back to shop front */}
-          <div className="p-3 border-t border-stone-850 flex-shrink-0">
+          <div className="p-3 border-t border-stone-200 dark:border-stone-850 flex-shrink-0">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-rose-950/20 text-stone-450 hover:text-rose-400 text-xs font-bold transition-all"
+              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-stone-600 dark:text-stone-450 hover:text-rose-600 dark:hover:text-rose-400 text-xs font-bold transition-all"
               title="Sign Out Supervisor"
             >
               <LogOut className="w-4 h-4 text-rose-500 flex-shrink-0" />

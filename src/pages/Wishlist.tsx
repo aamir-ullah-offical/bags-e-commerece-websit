@@ -23,13 +23,13 @@ export default function Wishlist() {
   };
 
   return (
-    <div id="wishlist-page" className="min-h-screen bg-stone-50 pb-20">
+    <div id="wishlist-page" className="min-h-screen bg-stone-50 dark:bg-stone-950 pb-20 text-stone-900 dark:text-stone-100 transition-colors">
       <Breadcrumb items={[{ label: "Your Wishlist" }]} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-        <h1 className="font-sans font-black text-3xl text-stone-900 tracking-tight mb-8 flex items-center gap-3">
+        <h1 className="font-sans font-black text-3xl text-stone-900 dark:text-white tracking-tight mb-8 flex items-center gap-3">
           Saved Favorites
-          <span className="text-sm font-semibold tracking-widest font-mono text-stone-400 uppercase">
+          <span className="text-sm font-semibold tracking-widest font-mono text-stone-400 dark:text-stone-500 uppercase">
             ({wishlistItems.length} Models)
           </span>
         </h1>
@@ -47,7 +47,7 @@ export default function Wishlist() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 border border-stone-150 relative flex flex-col justify-between"
+                    className="group bg-white dark:bg-stone-900 rounded-2xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 border border-stone-150 dark:border-stone-800 relative flex flex-col justify-between"
                   >
                     {/* Elimination header close */}
                     <button
@@ -55,7 +55,7 @@ export default function Wishlist() {
                         removeFromWishlist(prod.id);
                         showToast(`Removed "${prod.name}" from wishlist.`, "info");
                       }}
-                      className="absolute top-3.5 right-3.5 z-10 p-2 rounded-full bg-white/90 text-stone-500 hover:text-rose-500 hover:bg-white shadow-sm transition-all"
+                      className="absolute top-3.5 right-3.5 z-10 p-2 rounded-full bg-white/90 dark:bg-stone-950/90 text-stone-500 hover:text-rose-500 hover:bg-white dark:hover:bg-stone-800 shadow-sm transition-all"
                       title="Remove from wishlist"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -63,7 +63,7 @@ export default function Wishlist() {
 
                     <div>
                       {/* Product display thumbnail */}
-                      <Link to={`/product/${prod.id}`} className="block relative aspect-square bg-stone-50 overflow-hidden">
+                      <Link to={`/product/${prod.id}`} className="block relative aspect-square bg-stone-55 dark:bg-stone-950/60 overflow-hidden">
                         <img
                           src={prod.images[0]}
                           alt={prod.name}
@@ -81,11 +81,11 @@ export default function Wishlist() {
 
                       {/* Info lines text */}
                       <div className="p-4 flex flex-col">
-                        <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest block mb-1">
+                        <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-widest block mb-1">
                           {prod.brand}
                         </span>
-                        <Link to={`/product/${prod.id}`} className="hover:text-amber-600 transition-colors">
-                          <h3 className="font-sans font-bold text-sm text-stone-900 leading-snug line-clamp-2">
+                        <Link to={`/product/${prod.id}`} className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
+                          <h3 className="font-sans font-bold text-sm text-stone-900 dark:text-stone-100 leading-snug line-clamp-2">
                             {prod.name}
                           </h3>
                         </Link>
@@ -93,11 +93,11 @@ export default function Wishlist() {
                           <Rating value={prod.rating} size={11} showText={true} />
                         </div>
                         <div className="flex items-baseline gap-2 mt-3 mb-1">
-                          <span className="text-sm font-bold text-stone-900 font-mono">
+                          <span className="text-sm font-bold text-stone-900 dark:text-stone-100 font-mono">
                             ${discountPrice.toFixed(2)}
                           </span>
                           {prod.discount > 0 && (
-                            <span className="text-xxs text-stone-400 line-through font-mono">
+                            <span className="text-xxs text-stone-400 dark:text-stone-500 line-through font-mono">
                               ${prod.price.toFixed(2)}
                             </span>
                           )}
@@ -106,14 +106,14 @@ export default function Wishlist() {
                     </div>
 
                     {/* Quick Move to Bag CTA button footer bottom */}
-                    <div className="p-4 pt-0 border-t border-stone-50 mt-auto">
+                    <div className="p-4 pt-0 border-t border-stone-50 dark:border-stone-850 mt-auto">
                       <button
                         onClick={(e) => handleMoveToCart(e, prod)}
                         disabled={isOutOfStock}
                         className={`w-full py-2.5 rounded-xl font-bold font-sans text-xxs uppercase tracking-widest flex items-center justify-center gap-1.5 transition-colors ${
                           isOutOfStock
-                            ? "bg-stone-50 text-stone-405 cursor-not-allowed text-stone-400 border border-stone-100"
-                            : "bg-stone-950 text-white hover:bg-stone-850 cursor-pointer"
+                            ? "bg-stone-50 dark:bg-stone-850 text-stone-400 dark:text-stone-550 cursor-not-allowed border border-stone-100 dark:border-stone-800"
+                            : "bg-stone-950 dark:bg-amber-650 text-white dark:text-stone-950 hover:bg-stone-850 dark:hover:bg-amber-500 cursor-pointer"
                         }`}
                       >
                         <ShoppingBag className="w-3.5 h-3.5 text-amber-400" />
@@ -127,20 +127,20 @@ export default function Wishlist() {
           </div>
         ) : (
           /* EMPTY SAVED LIST PLACEHOLDER */
-          <div className="bg-white rounded-3xl border border-stone-150 max-w-xl mx-auto py-20 px-6 text-center flex flex-col items-center gap-4 my-8 shadow-xs">
-            <div className="p-4 bg-stone-100 rounded-full text-stone-400">
-              <Heart className="w-10 h-10 text-rose-500 fill-rose-50" />
+          <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-150 dark:border-stone-800 max-w-xl mx-auto py-20 px-6 text-center flex flex-col items-center gap-4 my-8 shadow-xs">
+            <div className="p-4 bg-stone-100 dark:bg-stone-800 rounded-full text-stone-400">
+              <Heart className="w-10 h-10 text-rose-500 fill-rose-50 dark:fill-stone-955" />
             </div>
-            <h2 className="font-sans font-black text-xl text-stone-900 animate-duration-1000">Your wishlist is empty</h2>
-            <p className="text-xs text-stone-500 max-w-sm leading-relaxed">
+            <h2 className="font-sans font-black text-xl text-stone-900 dark:text-white animate-duration-1000">Your wishlist is empty</h2>
+            <p className="text-xs text-stone-500 dark:text-stone-450 max-w-sm leading-relaxed">
               Whenever you encounter a handbag or accessory model you like in the boutique, click the heart symbol to store it in your favorites collection.
             </p>
             <Link
               to="/shop"
-              className="bg-stone-900 hover:bg-stone-850 text-white font-bold px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest transition-colors shadow-md mt-2 inline-flex items-center gap-1.5"
+              className="bg-stone-900 dark:bg-amber-500 hover:bg-stone-850 dark:hover:bg-amber-400 text-white dark:text-stone-950 font-bold px-8 py-3.5 rounded-xl text-xs uppercase tracking-widest transition-colors shadow-md mt-2 inline-flex items-center gap-1.5"
             >
               Discover Boutique Items
-              <ArrowRight className="w-4 h-4 text-amber-400 font-bold" />
+              <ArrowRight className="w-4 h-4 text-amber-400 dark:text-stone-950 font-bold" />
             </Link>
           </div>
         )}

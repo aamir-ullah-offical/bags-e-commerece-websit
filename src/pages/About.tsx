@@ -4,7 +4,7 @@ import Breadcrumb from "../components/Breadcrumb";
 
 export default function About() {
   return (
-    <div id="about-page" className="min-h-screen bg-stone-50 pb-20 font-sans">
+    <div id="about-page" className="min-h-screen bg-stone-50 dark:bg-stone-950 pb-20 font-sans text-stone-900 dark:text-stone-100 transition-colors">
       <Breadcrumb items={[{ label: "Our Story" }]} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
@@ -45,41 +45,41 @@ export default function About() {
         {/* MISSION & VISION BENTO BLOCKS */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16" id="about-mission">
           {/* Mission */}
-          <div className="bg-white rounded-3xl p-8 sm:p-10 border border-stone-150 shadow-xxs">
-            <div className="p-3 bg-amber-50 text-amber-700 w-fit rounded-2xl border border-amber-100 mb-6">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 sm:p-10 border border-stone-150 dark:border-stone-800 shadow-xxs">
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 w-fit rounded-2xl border border-amber-100 dark:border-amber-800 mb-6">
               <Compass className="w-6 h-6" />
             </div>
-            <h2 className="font-sans font-black text-xl text-stone-900 tracking-tight mb-3">Our Core Mission</h2>
-            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-serif mb-4">
+            <h2 className="font-sans font-black text-xl text-stone-900 dark:text-stone-100 tracking-tight mb-3">Our Core Mission</h2>
+            <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed font-serif mb-4">
               Our mission is to establish fashion designs that bridge luxury-class aesthetic with organic utility. We reject fast-fashion models, opting instead to manufacture smaller, curated batch series that prioritize stitch longevity and materials health.
             </p>
-            <p className="text-xs text-stone-500 leading-normal font-serif">
-              By combining classic French bark tanning rituals with modern RFID shield systems and padded device sleeves, we secure your carry-ons.
+            <p className="text-xs text-stone-500 dark:text-stone-400 leading-normal font-serif">
+               By combining classic French bark tanning rituals with modern RFID shield systems and padded device sleeves, we secure your carry-ons.
             </p>
           </div>
 
           {/* Vision */}
-          <div className="bg-white rounded-3xl p-8 sm:p-10 border border-stone-150 shadow-xxs">
-            <div className="p-3 bg-amber-50 text-amber-700 w-fit rounded-2xl border border-amber-100 mb-6">
+          <div className="bg-white dark:bg-stone-900 rounded-3xl p-8 sm:p-10 border border-stone-150 dark:border-stone-800 shadow-xxs">
+            <div className="p-3 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 w-fit rounded-2xl border border-amber-100 dark:border-amber-800 mb-6">
               <Sparkles className="w-6 h-6" />
             </div>
-            <h2 className="font-sans font-black text-xl text-stone-900 tracking-tight mb-3">Our Grand Vision</h2>
-            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-serif mb-4">
+            <h2 className="font-sans font-black text-xl text-stone-950 dark:text-stone-100 tracking-tight mb-3">Our Grand Vision</h2>
+            <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed font-serif mb-4">
               We envision a fully circular luxury accessory ecosystem where zero tanning water goes polluted and every single scrap leather fiber gets braided into keys or internal pocket support tags to avoid landfills.
             </p>
-            <p className="text-xs text-stone-500 leading-normal font-serif">
+            <p className="text-xs text-stone-500 dark:text-stone-400 leading-normal font-serif">
               Our target is to expand global workspace partnerships, empowering active leaders to carry eco-certified canvas and vegan-touch pieces.
             </p>
           </div>
         </section>
 
         {/* DETAILED CRAFTSMANSHIP PHASES */}
-        <section className="bg-stone-100 p-8 sm:p-12 rounded-3xl border border-stone-200" id="about-crafts">
+        <section className="bg-stone-100 dark:bg-stone-900 p-8 sm:p-12 rounded-3xl border border-stone-200 dark:border-stone-800" id="about-crafts">
           <div className="max-w-3xl mx-auto flex flex-col items-center text-center mb-10">
             <span className="text-[10px] font-bold tracking-widest text-amber-600 uppercase font-mono block mb-2">
               AUDITED LIFECYCLES
             </span>
-            <h2 className="font-sans font-extrabold text-2xl sm:text-3.5xl text-stone-900 tracking-tight">
+            <h2 className="font-sans font-extrabold text-2xl sm:text-3.5xl text-stone-900 dark:text-stone-150 tracking-tight">
               Phases Of Material Execution
             </h2>
             <div className="w-10 h-0.5 bg-amber-500 mt-4" />
@@ -87,31 +87,31 @@ export default function About() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="space-y-2">
-              <span className="font-mono text-3xl font-black text-stone-300">01 /</span>
-              <h3 className="font-sans font-bold text-sm text-stone-900 uppercase tracking-widest">
+              <span className="font-mono text-3xl font-black text-stone-300 dark:text-stone-700">01 /</span>
+              <h3 className="font-sans font-bold text-sm text-stone-900 dark:text-stone-200 uppercase tracking-widest">
                 Responsible Hide Selection
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed font-serif">
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed font-serif">
                 We select premium, raw cowhides representing byproduct surpluses of certified agricultural firms. We never source from deforested biome land.
               </p>
             </div>
 
             <div className="space-y-2">
-              <span className="font-mono text-3xl font-black text-stone-300">02 /</span>
-              <h3 className="font-sans font-bold text-sm text-stone-900 uppercase tracking-widest">
+              <span className="font-mono text-3xl font-black text-stone-300 dark:text-stone-700">02 /</span>
+              <h3 className="font-sans font-bold text-sm text-stone-900 dark:text-stone-200 uppercase tracking-widest">
                 Natural Vegetable Tanning
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed font-serif">
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed font-serif">
                 Our dye vats incorporate natural vegetable tannins derived from Chestnut, Mimosa, and Quebracho bark extracts—eliminating toxic chromium chemicals entirely.
               </p>
             </div>
 
             <div className="space-y-2">
-              <span className="font-mono text-3xl font-black text-stone-300">03 /</span>
-              <h3 className="font-sans font-bold text-sm text-stone-900 uppercase tracking-widest">
+              <span className="font-mono text-3xl font-black text-stone-300 dark:text-stone-700">03 /</span>
+              <h3 className="font-sans font-bold text-sm text-stone-900 dark:text-stone-200 uppercase tracking-widest">
                 Curator Batch Distribution
               </h3>
-              <p className="text-xs text-stone-500 leading-relaxed font-serif">
+              <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed font-serif">
                 Once items bypass strict inspections criteria, they are packaged in custom organic canvas bags, preserving maximum leather breathability in transit.
               </p>
             </div>
