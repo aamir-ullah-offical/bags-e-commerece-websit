@@ -1,0 +1,6 @@
+{
+  "name": "Bags & Accessories Store",
+  "description": "A premium-quality, fully responsive frontend e-commerce platform for bags, purses, wallets, travel bags, and fashion accessories.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
