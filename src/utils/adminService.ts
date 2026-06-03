@@ -83,6 +83,7 @@ export const adminService = {
 
   saveContactInfo: (data: ContactInfo) => {
     localStorage.setItem("mds_contact_info", JSON.stringify(data));
+    adminService.syncPost("settings/contact", data);
   },
 
   getWebsiteSettings: (): WebSettings => {
@@ -97,6 +98,7 @@ export const adminService = {
 
   saveWebsiteSettings: (data: WebSettings) => {
     localStorage.setItem("mds_website_settings", JSON.stringify(data));
+    adminService.syncPost("settings/website", data);
   },
 
   getAppearanceSettings: (): AppearanceSettings => {
@@ -116,6 +118,7 @@ export const adminService = {
 
   saveAppearanceSettings: (data: AppearanceSettings) => {
     localStorage.setItem("mds_appearance_settings", JSON.stringify(data));
+    adminService.syncPost("settings/appearance", data);
   },
 
   getStaticPages: (): Record<string, StaticPage> => {
@@ -145,6 +148,7 @@ export const adminService = {
 
   saveStaticPages: (data: Record<string, StaticPage>) => {
     localStorage.setItem("mds_static_pages", JSON.stringify(data));
+    adminService.syncPost("pages", data);
   },
 
   getSubscribers: (): NewsSubscriber[] => {
@@ -158,6 +162,7 @@ export const adminService = {
 
   saveSubscribers: (list: NewsSubscriber[]) => {
     localStorage.setItem("mds_subscribers", JSON.stringify(list));
+    adminService.syncPost("subscribers/bulk", list);
   },
 
   getAdminProfile: (): AdminProfile => {
@@ -170,6 +175,7 @@ export const adminService = {
 
   saveAdminProfile: (data: AdminProfile) => {
     localStorage.setItem("mds_admin_profile", JSON.stringify(data));
+    adminService.syncPost("settings/admin-profile", data);
   },
 
   getMediaLibrary: (): string[] => {
@@ -178,5 +184,56 @@ export const adminService = {
 
   saveMediaLibrary: (list: string[]) => {
     localStorage.setItem("mds_media_library", JSON.stringify(list));
+    adminService.syncPost("media/bulk", list);
+  },
+
+  // Perform post back to server endpoints
+  syncPost: async (endpoint: string, payload: any) => {
+    try {
+      const isAuthentic = localStorage.getItem("at_is_authenticated") === "true";
+      await fetch(`/api/v1/${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": isAuthentic ? "Bearer admin-token" : ""
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.warn(`Admin write back omitted: ${endpoint}`, err);
+    }
+  },
+
+  // Synchronize admin listings upon boot
+  initializeSync: async () => {
+    try {
+      const isAuthentic = localStorage.getItem("at_is_authenticated") === "true";
+      const headers = {
+        "Authorization": isAuthentic ? "Bearer admin-token" : ""
+      };
+
+      const cRes = await fetch("/api/v1/settings/contact");
+      if (cRes.ok) localStorage.setItem("mds_contact_info", JSON.stringify(await cRes.json()));
+
+      const wRes = await fetch("/api/v1/settings/website");
+      if (wRes.ok) localStorage.setItem("mds_website_settings", JSON.stringify(await wRes.json()));
+
+      const aRes = await fetch("/api/v1/settings/appearance");
+      if (aRes.ok) localStorage.setItem("mds_appearance_settings", JSON.stringify(await aRes.json()));
+
+      const pRes = await fetch("/api/v1/pages");
+      if (pRes.ok) localStorage.setItem("mds_static_pages", JSON.stringify(await pRes.json()));
+
+      const apRes = await fetch("/api/v1/settings/admin-profile");
+      if (apRes.ok) localStorage.setItem("mds_admin_profile", JSON.stringify(await apRes.json()));
+
+      const mRes = await fetch("/api/v1/media");
+      if (mRes.ok) localStorage.setItem("mds_media_library", JSON.stringify(await mRes.json()));
+
+      const sRes = await fetch("/api/v1/newsletter/subscribers", { headers });
+      if (sRes.ok) localStorage.setItem("mds_subscribers", JSON.stringify(await sRes.json()));
+    } catch (_) {
+      console.warn("Bootstrap admin settings offline");
+    }
   }
 };

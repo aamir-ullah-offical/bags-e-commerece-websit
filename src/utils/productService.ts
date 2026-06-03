@@ -87,21 +87,74 @@ export const productService = {
   saveProducts: (list: Product[]) => {
     productsList = list;
     localStorage.setItem("mds_products", JSON.stringify(list));
+    productService.syncPost("products/bulk", list);
   },
 
   saveCategories: (list: Category[]) => {
     categoriesList = list;
     localStorage.setItem("mds_categories", JSON.stringify(list));
+    productService.syncPost("categories/bulk", list);
   },
 
   saveBanners: (list: Banner[]) => {
     bannersList = list;
     localStorage.setItem("mds_banners", JSON.stringify(list));
+    productService.syncPost("banners/bulk", list);
   },
 
   saveTestimonials: (list: Testimonial[]) => {
     testimonialsList = list;
     localStorage.setItem("mds_testimonials", JSON.stringify(list));
+    productService.syncPost("testimonials/bulk", list);
+  },
+
+  // Post changes asynchronously back to core backend database
+  syncPost: async (endpoint: string, payload: any) => {
+    try {
+      const isAuthentic = localStorage.getItem("at_is_authenticated") === "true";
+      await fetch(`/api/v1/${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": isAuthentic ? "Bearer admin-token" : ""
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.warn("Express sync write back paused:", err);
+    }
+  },
+
+  // Fetch updated catalog on mount
+  initializeSync: async () => {
+    try {
+      const res = await fetch("/api/v1/products");
+      if (res.ok) {
+        const data = await res.json();
+        productsList = data;
+        localStorage.setItem("mds_products", JSON.stringify(data));
+      }
+      const catRes = await fetch("/api/v1/categories");
+      if (catRes.ok) {
+        const data = await catRes.json();
+        categoriesList = data;
+        localStorage.setItem("mds_categories", JSON.stringify(data));
+      }
+      const banRes = await fetch("/api/v1/banners");
+      if (banRes.ok) {
+        const data = await banRes.json();
+        bannersList = data;
+        localStorage.setItem("mds_banners", JSON.stringify(data));
+      }
+      const testRes = await fetch("/api/v1/testimonials");
+      if (testRes.ok) {
+        const data = await testRes.json();
+        testimonialsList = data;
+        localStorage.setItem("mds_testimonials", JSON.stringify(data));
+      }
+    } catch (err) {
+      console.warn("Bootstrap API server offline, running fallback local db", err);
+    }
   },
 
   // Advanced query search & filter

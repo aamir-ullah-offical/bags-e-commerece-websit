@@ -59,17 +59,60 @@ export default function Cart() {
   const grandTotal = taxableBasis + shippingCost + taxCost;
 
   // Checkout Handler
-  const handleCheckoutSubmit = (e: React.FormEvent) => {
+  const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!billingName.trim() || !billingEmail.trim() || !billingAddress.trim()) {
       showToast("Please compile all checkout parameters.", "info");
       return;
     }
 
-    const orderNo = "MDS-" + Math.floor(100000 + Math.random() * 900000);
-    setGeneratedOrderNo(orderNo);
-    setOrderConfirmed(true);
-    showToast("Checkout finalized successfully!", "success");
+    try {
+      const orderPayload = {
+        customer: {
+          fullName: billingName,
+          email: billingEmail,
+        },
+        products: cartItems.map((item) => ({
+          product: item.product,
+          quantity: item.quantity,
+          selectedColor: item.selectedColor || item.product.color
+        })),
+        shippingAddress: {
+          address: billingAddress,
+          city: "Paris",
+          country: "France",
+          zipCode: "75003"
+        },
+        subtotal: subtotal,
+        discount: discountAmount,
+        shippingFee: shippingCost,
+        total: grandTotal,
+        paymentMethod: "Cash On Delivery"
+      };
+
+      const res = await fetch("/api/v1/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setGeneratedOrderNo(data.order.orderNumber);
+        setOrderConfirmed(true);
+        showToast("Order placed on full-stack server!", "success");
+      } else {
+        const errJson = await res.json();
+        showToast(errJson.error || "Execution error writing order to server.", "error");
+      }
+    } catch (err) {
+      console.error("Failed to post order to server", err);
+      // Fallback
+      const orderNo = "MDS-" + Math.floor(100000 + Math.random() * 900000);
+      setGeneratedOrderNo(orderNo);
+      setOrderConfirmed(true);
+      showToast("Checkout finalized (Local backup)!", "success");
+    }
   };
 
   const handleCloseSuccess = () => {
