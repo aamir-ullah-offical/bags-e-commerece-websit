@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Plus, Edit2, Trash2, X, Star, Upload, Download, Save, Users } from "lucide-react";
 import { Category, Testimonial } from "../../types";
 import { NewsSubscriber } from "../../utils/adminService";
@@ -12,6 +12,8 @@ interface Props {
   onSaveTestimonials: (list: Testimonial[]) => void;
   onSaveSubscribers: (list: NewsSubscriber[]) => void;
   triggerToast: (msg: string, type: "success" | "error" | "info" | "warning") => void;
+  autoOpenAdd?: boolean;
+  onClearAutoOpen?: () => void;
 }
 
 export default function GeneralTabs({
@@ -23,6 +25,8 @@ export default function GeneralTabs({
   onSaveTestimonials,
   onSaveSubscribers,
   triggerToast,
+  autoOpenAdd,
+  onClearAutoOpen,
 }: Props) {
   // Common Search Filter State
   const [query, setQuery] = useState("");
@@ -138,6 +142,19 @@ export default function GeneralTabs({
     });
     setIsAddRev(true);
   };
+
+  useEffect(() => {
+    if (autoOpenAdd) {
+      if (subTab === "categories") {
+        handleOpenCatAdd();
+      } else if (subTab === "reviews") {
+        handleOpenRevAdd();
+      }
+      if (onClearAutoOpen) {
+        onClearAutoOpen();
+      }
+    }
+  }, [autoOpenAdd, subTab]);
 
   const handleOpenRevEdit = (rev: Testimonial) => {
     setEditReview(rev);

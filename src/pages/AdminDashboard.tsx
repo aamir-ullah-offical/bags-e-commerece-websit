@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
   LayoutDashboard,
@@ -25,7 +25,13 @@ import {
   CheckCircle,
   Clock,
   Eye,
-  Check
+  Check,
+  Search as SearchIcon,
+  Sun,
+  Moon,
+  Plus,
+  Compass,
+  Briefcase
 } from "lucide-react";
 
 import { productService } from "../utils/productService";
@@ -40,6 +46,9 @@ import {
 } from "../utils/adminService";
 
 import { Product, Category, Banner, Testimonial } from "../types";
+import { useAuth } from "../context/AuthContext";
+import { useThemeContext } from "../context/ThemeContext";
+import { useToast } from "../context/ToastContext";
 
 // Inner tab sub-components
 import AnalyticsCharts from "../dashboard/components/AnalyticsCharts";
@@ -49,9 +58,15 @@ import GeneralTabs from "../dashboard/components/GeneralTabs";
 import SettingsTabs from "../dashboard/components/SettingsTabs";
 
 export default function AdminDashboard() {
+  const { logout } = useAuth();
+  const { theme, toggleTheme } = useThemeContext();
+  const { showToast } = useToast();
+  const navigate = useNavigate();
+
   // Sidebar toggler
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, products, categories, homepage, banners, reviews, newsletter, contact, pages, media, appearance, web, profile
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   // Local React copies of e-commerce data assets to allow real-time reactivity
   const [products, setProducts] = useState<Product[]>([]);
@@ -70,20 +85,41 @@ export default function AdminDashboard() {
   const [mediaLibrary, setMediaLibrary] = useState<string[]>([]);
   const [subscribers, setSubscribers] = useState<NewsSubscriber[]>([]);
 
-  // Live Toast state helper
-  interface ToastEvent {
-    id: number;
-    msg: string;
-    type: "success" | "error" | "info" | "warning";
-  }
-  const [toasts, setToasts] = useState<ToastEvent[]>([]);
+  // Header Dropdown menus
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  // Quick action activation flags passed to child tabs
+  const [autoOpenAddProduct, setAutoOpenAddProduct] = useState(false);
+  const [autoOpenAddCategory, setAutoOpenAddCategory] = useState(false);
+  const [autoOpenAddReview, setAutoOpenAddReview] = useState(false);
+
+  // Global Search states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Mock notifications sequence
+  const [notifications, setNotifications] = useState([
+    { id: 1, text: "New priority subscriber: takashi.sato@ginza-carry.jp", time: "3 mins ago", read: false },
+    { id: 2, text: "Product out of stock alert: Red Leather Purse SKU-001", time: "1 hour ago", read: false },
+    { id: 3, text: "Gabrielle Royer posted a new 5-star product review", time: "4 hours ago", read: true },
+    { id: 4, text: "System security backup verified successfully", time: "22 hours ago", read: true }
+  ]);
+
+  // Click outside search container helper
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const triggerToast = (msg: string, type: "success" | "error" | "info" | "warning" = "success") => {
-    const freshId = Date.now();
-    setToasts((prev) => [...prev, { id: freshId, msg, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== freshId));
-    }, 4500);
+    showToast(msg, type === "success" ? "success" : "info");
   };
 
   // Load all initial variables from persistent productService and adminService gateways
@@ -101,7 +137,7 @@ export default function AdminDashboard() {
     setMediaLibrary(adminService.getMediaLibrary());
     setSubscribers(adminService.getSubscribers());
 
-    triggerToast("Concierge security clearance granted. Welcome, Charles.", "success");
+    triggerToast("Concierge security clearance granted. Welcome, Charles Laurent.", "success");
   }, []);
 
   // Save changes hook callbacks that write directly to LocalStorage + update React components states
@@ -160,57 +196,120 @@ export default function AdminDashboard() {
     setSubscribers(list);
   };
 
+  // Logout routine
+  const handleLogout = () => {
+    logout();
+    triggerToast("Supervised session terminated. Returning to storefront.", "info");
+    navigate("/");
+  };
+
+  // Mark all notifications read
+  const handleMarkAllNotificationsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    triggerToast("All notifications marked as read.", "success");
+  };
+
   // Quick statistics widgets helpers
   const countFeatured = products.filter((p) => p.isFeatured).length;
   const countTopPicks = products.filter((p) => p.isTopPick).length;
   const countTopSelling = products.filter((p) => p.isTopSelling).length;
-  const countNewArrivals = products.filter((p) => {
-    const isNewDate = new Date(p.createdAt).getTime() > new Date("2026-05-01").getTime();
-    return isNewDate;
-  }).length;
 
   const sidebarMenu = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "products", label: "Products", icon: ShoppingBag },
-    { id: "categories", label: "Categories", icon: FolderOpen },
-    { id: "homepage", label: "Homepage Selection", icon: Sliders },
+    { id: "dashboard", label: "Dashboard Overview", icon: LayoutDashboard },
+    { id: "products", label: "Product Catalog", icon: ShoppingBag },
+    { id: "categories", label: "Category Hierarchy", icon: FolderOpen },
+    { id: "homepage", label: "Homepage Selections", icon: Sliders },
     { id: "banners", label: "Hero & Promo Banners", icon: Image },
     { id: "reviews", label: "Public Reviews", icon: Star },
     { id: "newsletter", label: "Newsletter Base", icon: Mail },
-    { id: "contact", label: "Contact Coordinates", icon: MapPin },
+    { id: "contact", label: "Atelier Coordinates", icon: MapPin },
     { id: "pages", label: "Static Pages Policy", icon: FileText },
     { id: "media", label: "Media Library Gallery", icon: Image },
-    { id: "appearance", label: "Branding Appearance", icon: Palette },
+    { id: "appearance", label: "Appearance Styles", icon: Palette },
     { id: "web", label: "Website Settings", icon: Settings },
     { id: "profile", label: "My Profile Admin", icon: User },
   ];
 
+  // Dynamic Search Engine calculation
+  const getSearchResults = () => {
+    if (!searchQuery.trim()) return [];
+
+    const query = searchQuery.toLowerCase().trim();
+    const results: { type: "Product" | "Category" | "Review" | "Page"; title: string; subtitle?: string; tab: string }[] = [];
+
+    // Search Products
+    products.forEach((p) => {
+      if (p.name.toLowerCase().includes(query) || p.sku?.toLowerCase().includes(query)) {
+        results.push({ type: "Product", title: p.name, subtitle: `Price: $${p.price} | SKU: ${p.sku || ""}`, tab: "products" });
+      }
+    });
+
+    // Search Categories
+    categories.forEach((c) => {
+      if (c.name.toLowerCase().includes(query)) {
+        results.push({ type: "Category", title: c.name, subtitle: `Category: ${c.count || 0} products linked`, tab: "categories" });
+      }
+    });
+
+    // Search Reviews
+    testimonials.forEach((t) => {
+      if (t.comment.toLowerCase().includes(query) || t.name.toLowerCase().includes(query)) {
+        results.push({ type: "Review", title: `Review by ${t.name}`, subtitle: t.comment, tab: "reviews" });
+      }
+    });
+
+    // Search Static Pages
+    Object.entries(staticPages).forEach(([key, page]) => {
+      const p = page as any;
+      if (p.seoTitle?.toLowerCase().includes(query) || p.content?.toLowerCase().includes(query)) {
+        results.push({ type: "Page", title: p.seoTitle, subtitle: `Page Module: /about, /policy`, tab: "pages" });
+      }
+    });
+
+    return results.slice(0, 7);
+  };
+
+  const results = getSearchResults();
+
   return (
-    <div className="min-h-screen bg-stone-100 flex font-sans antialiased" id="admin-dashboard-container">
-      {/* ================= RE-USE COLLAPSIBLE SIDEBAR ================= */}
+    <div className="h-screen overflow-hidden flex bg-stone-50 dark:bg-stone-950 text-stone-850 dark:text-stone-150 font-sans antialiased transition-colors duration-300" id="admin-dashboard-container">
+      
+      {/* ================= BACKGROUND BLUR DECORATIONS ================= */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/5 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute bottom-12 left-1/4 w-80 h-80 bg-stone-500/5 blur-3xl rounded-full pointer-events-none" />
+
+      {/* ================= MOBILE SIDEBAR BACKDROP OVERLAY ================= */}
+      {mobileSidebarOpen && (
+        <div
+          onClick={() => setMobileSidebarOpen(false)}
+          className="fixed inset-0 bg-stone-950/70 backdrop-blur-xs z-40 lg:hidden"
+        />
+      )}
+
+      {/* ================= 1. RE-USE COLLAPSIBLE SIDEBAR ================= */}
       <aside
-        className={`bg-stone-900 text-stone-300 border-r border-stone-850 flex flex-col justify-between transition-all duration-300 z-30 flex-shrink-0 ${
-          sidebarCollapsed ? "w-18" : "w-64"
-        }`}
+        className={`h-full bg-stone-900 border-r border-stone-850 flex flex-col justify-between transition-all duration-300 z-50 flex-shrink-0 fixed lg:static inset-y-0 left-0 ${
+          mobileSidebarOpen ? "translate-x-0 w-64" : "-translate-x-full lg:translate-x-0"
+        } ${sidebarCollapsed ? "lg:w-20" : "lg:w-64"}`}
       >
-        <div>
+        <div className="flex flex-col h-full overflow-hidden">
           {/* Logo Brand Header */}
-          <div className="h-20 border-b border-stone-850 px-5 flex items-center justify-between">
-            {!sidebarCollapsed ? (
-              <div className="flex items-baseline gap-1 animate-fadeIn">
-                <span className="font-sans font-extrabold text-white text-lg tracking-tight select-none">
-                  ATELIER
+          <div className="h-20 border-b border-stone-850 px-5 flex items-center justify-between flex-shrink-0">
+            {(!sidebarCollapsed || mobileSidebarOpen) ? (
+              <div className="flex items-baseline gap-1.5 animate-fadeIn">
+                <span className="font-sans font-black text-white text-lg tracking-wider">
+                  MDS ATELIER
                 </span>
-                <span className="text-amber-500 font-mono text-[9px] font-bold tracking-widest uppercase select-none">
+                <span className="text-amber-500 font-mono text-[8px] font-extrabold tracking-widest uppercase">
                   ADMIN
                 </span>
               </div>
             ) : (
-              <span className="text-amber-500 font-mono text-xs font-black mx-auto">A</span>
+              <span className="text-amber-500 font-serif text-lg font-black mx-auto">M</span>
             )}
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-1 rounded-lg hover:bg-stone-800 text-stone-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg hover:bg-stone-800 text-stone-400 hover:text-white transition-colors hidden lg:block"
               title="Collapse Panel"
             >
               {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -218,140 +317,332 @@ export default function AdminDashboard() {
           </div>
 
           {/* Connected Admin profile badge */}
-          {!sidebarCollapsed && (
-            <div className="px-5 py-4 border-b border-stone-850 flex items-center gap-3 bg-stone-950/20">
+          {(!sidebarCollapsed || mobileSidebarOpen) && (
+            <div className="px-5 py-4 border-b border-stone-850/60 flex items-center gap-3 bg-stone-950/20 flex-shrink-0">
               <img
                 src={adminProfile.profileImage || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=150&h=150&q=80"}
                 alt=""
-                className="w-10 h-10 rounded-full object-cover border border-stone-700 shadow-sm"
+                className="w-10 h-10 rounded-full object-cover border border-stone-700 shadow-sm flex-shrink-0"
               />
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-stone-100 font-sans tracking-wide truncate max-w-40">{adminProfile.fullName}</span>
-                <span className="text-[10px] text-stone-500 font-medium font-mono">Brand Concierge ID</span>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-bold text-stone-100 font-sans tracking-wide truncate">{adminProfile.fullName}</span>
+                <span className="text-[10px] text-stone-500 font-medium font-mono uppercase tracking-widest mt-0.5">Brand Supervisor</span>
               </div>
             </div>
           )}
 
           {/* Navigation Links list */}
-          <nav className="p-3 space-y-1">
+          <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin">
             {sidebarMenu.map((item) => {
               const IconComp = item.icon;
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all ${
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setMobileSidebarOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold tracking-wide transition-all ${
                     isActive
-                      ? "bg-amber-600 text-stone-900 font-bold shadow-md shadow-amber-600/10"
-                      : "hover:bg-stone-800/60 hover:text-stone-100"
+                      ? "bg-amber-600 text-stone-950 font-extrabold shadow-md shadow-amber-600/10"
+                      : "text-stone-400 hover:bg-stone-800/60 hover:text-stone-100"
                   }`}
                   title={item.label}
                 >
                   <IconComp className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-stone-950" : "text-stone-400"}`} />
-                  {!sidebarCollapsed && (
+                  {(!sidebarCollapsed || mobileSidebarOpen) && (
                     <span className="truncate">{item.label}</span>
                   )}
                 </button>
               );
             })}
           </nav>
-        </div>
 
-        {/* Exit link back to shop front */}
-        <div className="p-3 border-t border-stone-850">
-          <Link
-            to="/"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-950/20 text-stone-400 hover:text-rose-400 text-xs font-bold transition-all"
-            title="Exit Admin Panel"
-          >
-            <LogOut className="w-4 h-4 text-rose-500" />
-            {!sidebarCollapsed && <span>Exit to Storefront</span>}
-          </Link>
+          {/* Exit link back to shop front */}
+          <div className="p-3 border-t border-stone-850 flex-shrink-0">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-rose-950/20 text-stone-450 hover:text-rose-400 text-xs font-bold transition-all"
+              title="Sign Out Supervisor"
+            >
+              <LogOut className="w-4 h-4 text-rose-500 flex-shrink-0" />
+              {(!sidebarCollapsed || mobileSidebarOpen) && <span>Log out secure session</span>}
+            </button>
+          </div>
         </div>
       </aside>
 
       {/* ================= MAIN CONTENT VIEWPORT DECK ================= */}
-      <div className="flex-1 flex flex-col min-w-0" id="main-admin-viewport">
+      <div className="flex-1 flex flex-col min-w-0 h-full relative" id="main-admin-viewport">
+        
         {/* Sticky top brand Header */}
-        <header className="sticky top-0 h-20 bg-white border-b border-stone-200 px-6 flex items-center justify-between z-20 shadow-sm shadow-stone-100/40">
+        <header className="h-20 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-6 flex items-center justify-between z-30 shadow-sm relative transition-colors duration-300">
+          
+          {/* Mobile Menu & Section ID */}
           <div className="flex items-center gap-3">
-            <span className="font-mono text-xs font-bold text-stone-400 uppercase tracking-widest bg-stone-50 border border-stone-150 px-2.5 py-1 rounded-lg">
-              SYSTEM LEVEL: SECURE READ/WRITE
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="p-1.5 rounded-lg border border-stone-200 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-stone-850 text-stone-600 dark:text-stone-300 lg:hidden transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            <span className="font-mono text-[9px] font-extrabold text-stone-500 dark:text-amber-500 uppercase tracking-widest bg-stone-100 dark:bg-amber-600/10 border border-stone-250 dark:border-amber-600/20 px-2.5 py-1.5 rounded-lg hidden sm:inline-block">
+              SYSTEM PORT: 3000
             </span>
-            <div className="h-4 w-px bg-stone-200 hidden md:block" />
-            <h1 className="font-sans font-black text-stone-950 text-base hidden md:block">
-              {sidebarMenu.find((m) => m.id === activeTab)?.label} Module
+            <div className="h-4 w-px bg-stone-200 dark:bg-stone-800 hidden md:block" />
+            <h1 className="font-sans font-black text-stone-950 dark:text-stone-50 text-sm tracking-wide hidden md:block uppercase">
+              {sidebarMenu.find((m) => m.id === activeTab)?.label}
             </h1>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-bold">
-            {/* Quick action buttons */}
-            <Link
-              to="/"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 hover:bg-stone-100 text-stone-700 bg-stone-50 border border-stone-200 rounded-xl transition-all font-sans"
-            >
-              <Eye className="w-4 h-4 text-stone-400" />
-              Storefront Preview
-            </Link>
+          {/* Interactive Utilities Area */}
+          <div className="flex items-center gap-3">
+            
+            {/* 1. Global Search Box with custom matches lists */}
+            <div className="relative" ref={searchContainerRef}>
+              <div className="relative flex items-center max-w-xs md:w-60 lg:w-72 bg-stone-100 dark:bg-stone-950 border border-stone-200 dark:border-stone-800/80 rounded-xl focus-within:border-amber-500 dark:focus-within:border-amber-600 transition-all pr-2">
+                <SearchIcon className="absolute left-3 w-4 h-4 text-stone-400" />
+                <input
+                  type="text"
+                  placeholder="Universal system query..."
+                  className="w-full pl-8 pr-2 py-2 text-xs bg-transparent focus:outline-none placeholder-stone-400 text-stone-800 dark:text-stone-100 font-medium"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSearchResults(true);
+                  }}
+                  onFocus={() => setShowSearchResults(true)}
+                />
+              </div>
 
-            <div className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-              <span className="text-[10px] text-stone-400 font-mono font-bold tracking-widest uppercase">Atelier Online</span>
+              {/* Real-time search dropdown drawer */}
+              <AnimatePresence>
+                {showSearchResults && searchQuery.trim().length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-32px)] bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl shadow-xl z-50 p-2 overflow-hidden text-xs text-stone-800 dark:text-stone-200"
+                  >
+                    <div className="px-3 py-2 text-[10px] font-bold text-stone-400 uppercase tracking-widest font-mono border-b border-stone-100 dark:border-stone-800 flex justify-between">
+                      <span>Matches ({results.length})</span>
+                      <span>Press enter</span>
+                    </div>
+
+                    <div className="max-h-64 overflow-y-auto p-1 space-y-0.5 mt-1 scrollbar-thin">
+                      {results.length === 0 ? (
+                        <div className="p-4 text-center text-stone-400 dark:text-stone-500">
+                          No matching records discovered.
+                        </div>
+                      ) : (
+                        results.map((r, i) => (
+                          <button
+                            key={i}
+                            onClick={() => {
+                              setActiveTab(r.tab);
+                              setSearchQuery("");
+                              setShowSearchResults(false);
+                            }}
+                            className="w-full text-left p-2 hover:bg-stone-50 dark:hover:bg-stone-850 rounded-xl transition-colors flex items-start gap-2.5"
+                          >
+                            <span className="text-[9px] uppercase tracking-wider font-extrabold font-mono text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded-md mt-0.5 shrink-0">
+                              {r.type}
+                            </span>
+                            <div className="min-w-0">
+                              <span className="font-bold text-stone-850 dark:text-stone-50 block truncate">{r.title}</span>
+                              {r.subtitle && <span className="text-[10px] text-stone-400 dark:text-stone-500 block truncate font-medium mt-0.5">{r.subtitle}</span>}
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
+
+            {/* 2. Light & Dark Mode Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 border border-stone-200 dark:border-stone-800/80 hover:bg-stone-150 dark:hover:bg-stone-850 rounded-xl text-stone-500 dark:text-stone-400 transition-all active:scale-95"
+              title="Toggle Theme Mode"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-stone-800" />}
+            </button>
+
+            {/* 3. Notifications Bell Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  setShowProfileMenu(false);
+                }}
+                className="p-2 border border-stone-200 dark:border-stone-800/80 hover:bg-stone-150 dark:hover:bg-stone-850 rounded-xl text-stone-500 dark:text-stone-400 transition-all select-none relative"
+                title="System Notifications"
+              >
+                <Bell className="w-4 h-4 text-stone-700 dark:text-stone-300" />
+                {notifications.some(n => !n.read) && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-stone-900 animate-pulse" />
+                )}
+              </button>
+
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    className="absolute right-0 mt-2 w-80 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl shadow-xl z-50 overflow-hidden text-stone-850 dark:text-stone-100"
+                  >
+                    <div className="bg-stone-50 dark:bg-stone-950 px-4 py-3 border-b border-stone-150 dark:border-stone-850 flex items-center justify-between">
+                      <span className="font-bold text-xs">System Notifications</span>
+                      <button
+                        onClick={handleMarkAllNotificationsRead}
+                        className="text-[10px] text-amber-600 hover:text-amber-700 font-extrabold tracking-wide uppercase transition-colors"
+                      >
+                        Mark all read
+                      </button>
+                    </div>
+
+                    <div className="divide-y divide-stone-100 dark:divide-stone-850 max-h-72 overflow-y-auto scrollbar-thin">
+                      {notifications.map((n) => (
+                        <div key={n.id} className={`p-3.5 flex items-start gap-3 transition-colors ${!n.read ? "bg-amber-600/5" : ""}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${!n.read ? "bg-amber-500" : "bg-stone-350 dark:bg-stone-700"}`} />
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold leading-relaxed text-stone-800 dark:text-stone-200">{n.text}</p>
+                            <span className="text-[9px] text-stone-400 font-medium block mt-1 font-mono">{n.time}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* 4. Connected Admin Profile Menu Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowProfileMenu(!showProfileMenu);
+                  setShowNotifications(false);
+                }}
+                className="flex items-center gap-2 p-1 border border-stone-200 dark:border-stone-800/80 hover:bg-stone-150 dark:hover:bg-stone-850 rounded-xl transition-all"
+              >
+                <img
+                  src={adminProfile.profileImage || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=facearea&facepad=2&w=150&h=150&q=80"}
+                  alt=""
+                  className="w-7 h-7 rounded-lg object-cover"
+                />
+                <span className="text-xs font-bold text-stone-700 dark:text-stone-300 pr-1 hidden sm:inline-block max-w-28 truncate">{adminProfile.fullName.split(" ")[0]}</span>
+              </button>
+
+              <AnimatePresence>
+                {showProfileMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 8 }}
+                    className="absolute right-0 mt-2 w-56 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-850 rounded-2xl shadow-xl z-50 p-2 overflow-hidden text-xs"
+                  >
+                    <div className="px-3.5 py-3 border-b border-stone-100 dark:border-stone-850 bg-stone-50 dark:bg-stone-950/40 rounded-xl mb-1.5">
+                      <span className="font-extrabold text-stone-850 dark:text-white block">{adminProfile.fullName}</span>
+                      <span className="text-[10px] text-stone-400 font-mono block mt-0.5 truncate">{adminProfile.email}</span>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab("profile");
+                        setShowProfileMenu(false);
+                      }}
+                      className="w-full text-left p-2.5 hover:bg-stone-50 dark:hover:bg-stone-850 rounded-xl font-bold text-stone-700 dark:text-stone-300 transition-colors flex items-center gap-2"
+                    >
+                      <User className="w-4 h-4 text-stone-400" />
+                      Manage Profile Admin
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab("web");
+                        setShowProfileMenu(false);
+                      }}
+                      className="w-full text-left p-2.5 hover:bg-stone-50 dark:hover:bg-stone-850 rounded-xl font-bold text-stone-700 dark:text-stone-300 transition-colors flex items-center gap-2"
+                    >
+                      <Settings className="w-4 h-4 text-stone-400" />
+                      Website Settings
+                    </button>
+
+                    <div className="h-px bg-stone-100 dark:bg-stone-800 my-1.5" />
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left p-2.5 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl font-bold text-rose-600 transition-colors flex items-center gap-2"
+                    >
+                      <LogOut className="w-4 h-4 text-rose-500" />
+                      Terminate Session
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
           </div>
         </header>
 
-        {/* Outer scrolling content wrapper */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
-          {/* ================= 1. SUMMARY STATISTICS CARDS (RENDERED ON DASHBOARD HOME ONLY) ================= */}
+        {/* Outer and ONLY scrolling content area */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6 scrollbar-thin">
+          
+          {/* ================= 1. OVERVIEW STATISTICS CARDS (RENDERED ON DASHBOARD HOME ONLY) ================= */}
           {activeTab === "dashboard" && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4" id="numeric-stats-widgets">
+              
               {/* Product Inventory */}
-              <div className="bg-white p-5 rounded-2xl border border-stone-150/70 shadow-xs flex items-center justify-between">
+              <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-xs flex items-center justify-between transition-colors duration-300">
                 <div>
-                  <span className="text-stone-400 text-[10px] font-bold tracking-widest uppercase font-mono block">Products Registry</span>
-                  <strong className="text-2xl font-serif text-stone-900 block mt-1">{products.length}</strong>
-                  <span className="text-[10px] text-stone-400 mt-1 block">In Stock: {products.filter((p) => p.stock > 0).length} items</span>
+                  <span className="text-stone-450 dark:text-stone-505 text-[9px] font-extrabold tracking-widest uppercase font-mono block">Product Inventory</span>
+                  <strong className="text-2xl font-serif text-stone-900 dark:text-stone-50 block mt-1">{products.length}</strong>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 block">In Stock: {products.filter((p) => p.stock > 0).length} items</span>
                 </div>
-                <div className="w-12 h-12 bg-amber-600/10 rounded-xl flex items-center justify-center text-amber-700 flex-shrink-0">
-                  <ShoppingBag className="w-6 h-6 text-amber-600" />
+                <div className="w-12 h-12 bg-amber-600/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-amber-600/10">
+                  <ShoppingBag className="w-6 h-6 text-amber-500" />
                 </div>
               </div>
 
               {/* Category Volume */}
-              <div className="bg-white p-5 rounded-2xl border border-stone-150/70 shadow-xs flex items-center justify-between">
+              <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-xs flex items-center justify-between transition-colors duration-300">
                 <div>
-                  <span className="text-stone-400 text-[10px] font-bold tracking-widest uppercase font-mono block">Luxury Categories</span>
-                  <strong className="text-2xl font-serif text-stone-900 block mt-1">{categories.length}</strong>
-                  <span className="text-[10px] text-stone-400 mt-1 block">Distinct Collections</span>
+                  <span className="text-stone-450 dark:text-stone-505 text-[9px] font-extrabold tracking-widest uppercase font-mono block">Luxury Categories</span>
+                  <strong className="text-2xl font-serif text-stone-900 dark:text-stone-50 block mt-1">{categories.length}</strong>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 block">Distinct Collections</span>
                 </div>
-                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 flex-shrink-0">
-                  <FolderOpen className="w-6 h-6 text-indigo-600" />
+                <div className="w-12 h-12 bg-sky-500/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-sky-500/15">
+                  <FolderOpen className="w-6 h-6 text-sky-500" />
                 </div>
               </div>
 
               {/* Featured items */}
-              <div className="bg-white p-5 rounded-2xl border border-stone-150/70 shadow-xs flex items-center justify-between">
+              <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-xs flex items-center justify-between transition-colors duration-300">
                 <div>
-                  <span className="text-stone-400 text-[10px] font-bold tracking-widest uppercase font-mono block">Featured / Top Picks</span>
-                  <strong className="text-2xl font-serif text-stone-900 block mt-1">{countFeatured + countTopPicks}</strong>
-                  <span className="text-[10px] text-stone-400 mt-1 block">Selling: {countTopSelling} Best Sellers</span>
+                  <span className="text-stone-450 dark:text-stone-505 text-[9px] font-extrabold tracking-widest uppercase font-mono block">Featured & Picks</span>
+                  <strong className="text-2xl font-serif text-stone-900 dark:text-stone-50 block mt-1">{countFeatured + countTopPicks}</strong>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 block">Selling: {countTopSelling} Best Sellers</span>
                 </div>
-                <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 flex-shrink-0">
-                  <Sparkles className="w-6 h-6 text-emerald-600 fill-emerald-100" />
+                <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-emerald-500/15">
+                  <Sparkles className="w-6 h-6 text-emerald-500" />
                 </div>
               </div>
 
               {/* Newsletter subs */}
-              <div className="bg-white p-5 rounded-2xl border border-stone-150/70 shadow-xs flex items-center justify-between">
+              <div className="bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-xs flex items-center justify-between transition-colors duration-300">
                 <div>
-                  <span className="text-stone-400 text-[10px] font-bold tracking-widest uppercase font-mono block">Subscribers base</span>
-                  <strong className="text-2xl font-serif text-stone-900 block mt-1">{subscribers.length}</strong>
-                  <span className="text-[10px] text-stone-400 mt-1 block">Review count: {testimonials.length} reviews</span>
+                  <span className="text-stone-450 dark:text-stone-505 text-[9px] font-extrabold tracking-widest uppercase font-mono block">Subscribers</span>
+                  <strong className="text-2xl font-serif text-stone-900 dark:text-stone-50 block mt-1">{subscribers.length}</strong>
+                  <span className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 block">Reviews: {testimonials.length} reviews</span>
                 </div>
-                <div className="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 flex-shrink-0">
-                  <Mail className="w-6 h-6 text-rose-600" />
+                <div className="w-12 h-12 bg-rose-500/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-rose-500/15">
+                  <Mail className="w-6 h-6 text-rose-500" />
                 </div>
               </div>
             </div>
@@ -359,40 +650,101 @@ export default function AdminDashboard() {
 
           {/* =================== 2. RENDERING ACTIVE COMPONENT TABS =================== */}
           <div className="transition-all duration-300">
-            {/* Dashboard Visualizer */}
+            
+            {/* Dashboard Home tab */}
             {activeTab === "dashboard" && (
               <div className="space-y-6">
+                
                 {/* Visual Chart decks */}
                 <AnalyticsCharts products={products} categories={categories} />
 
-                {/* Database Quick Summary Row */}
-                <div className="bg-stone-900 text-white p-6 rounded-2xl border border-stone-850 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <span className="text-amber-500 font-mono text-[9px] font-bold tracking-widest uppercase">System Synchronization Service</span>
-                    <h3 className="font-sans font-bold text-white text-base">All content fields currently synchronized to storefront.</h3>
-                    <p className="text-xs text-stone-300">Edit, inject, or remove product cards, hero sliders, FAQs, or typography profiles right in the settings sub-panels below.</p>
+                {/* Reusable Enterprise-Level Quick Actions Panel */}
+                <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 rounded-2xl shadow-xs transition-colors duration-300">
+                  <div>
+                    <h3 className="font-sans font-bold text-stone-950 dark:text-stone-50 text-sm mb-1 uppercase tracking-wider">Quick supervisor Actions</h3>
+                    <p className="text-xs text-stone-400 dark:text-stone-500 font-medium">
+                      Admin command actions. Select a key parameters module to initiate new database records instantly.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
+                    
+                    <button
+                      onClick={() => {
+                        setActiveTab("products");
+                        setAutoOpenAddProduct(true);
+                      }}
+                      className="p-4 bg-stone-50 hover:bg-stone-100 dark:bg-stone-950/60 dark:hover:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-xl transition-all flex flex-col items-center justify-center gap-2.5 text-center group active:scale-98"
+                    >
+                      <Plus className="w-5 h-5 text-amber-500 group-hover:scale-110 transition-transform" />
+                      <span className="text-xs font-bold text-stone-800 dark:text-stone-300">Add New Product</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab("categories");
+                        setAutoOpenAddCategory(true);
+                      }}
+                      className="p-4 bg-stone-50 hover:bg-stone-100 dark:bg-stone-950/60 dark:hover:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-xl transition-all flex flex-col items-center justify-center gap-2.5 text-center group active:scale-98"
+                    >
+                      <Plus className="w-5 h-5 text-sky-500 group-hover:scale-110 transition-transform" />
+                      <span className="text-xs font-bold text-stone-800 dark:text-stone-300">Add Category</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab("banners");
+                      }}
+                      className="p-4 bg-stone-50 hover:bg-stone-100 dark:bg-stone-950/60 dark:hover:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-xl transition-all flex flex-col items-center justify-center gap-2.5 text-center group active:scale-98"
+                    >
+                      <Plus className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" />
+                      <span className="text-xs font-bold text-stone-800 dark:text-stone-300">Manage Banners</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setActiveTab("reviews");
+                        setAutoOpenAddReview(true);
+                      }}
+                      className="p-4 bg-stone-50 hover:bg-stone-100 dark:bg-stone-950/60 dark:hover:bg-stone-950 border border-stone-200 dark:border-stone-850 rounded-xl transition-all flex flex-col items-center justify-center gap-2.5 text-center group active:scale-98"
+                    >
+                      <Plus className="w-5 h-5 text-rose-500 group-hover:scale-110 transition-transform" />
+                      <span className="text-xs font-bold text-stone-800 dark:text-stone-300">Add Testimonial</span>
+                    </button>
+
+                  </div>
+                </div>
+
+                {/* Database Sync Banner */}
+                <div className="bg-stone-900 text-white p-6 rounded-2xl border border-stone-850 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-600/10 blur-2xl rounded-full" />
+                  <div className="space-y-1 relative z-10">
+                    <span className="text-amber-500 font-mono text-[9px] font-extrabold tracking-widest uppercase">System Integration Center</span>
+                    <h3 className="font-sans font-bold text-white text-base">Atelier changes are live on the client-facing shop.</h3>
+                    <p className="text-xs text-stone-300">JSON structures remain prepared for direct API hookups and Express-ready routers.</p>
                   </div>
                   <button
                     onClick={() => setActiveTab("products")}
-                    className="self-start md:self-auto px-5 py-2 bg-white text-stone-950 rounded-xl text-xs font-bold transition-all hover:bg-stone-100 tracking-wide font-sans shadow-md"
+                    className="self-start md:self-auto px-5 py-2.5 bg-amber-600 text-stone-950 rounded-xl text-xs font-black transition-all hover:bg-amber-500 tracking-wide font-sans shadow-md"
                   >
-                    Launch Products Catalog CRUDS
+                    Manage Products Catalog
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Products Tab */}
+            {/* Products Catalog Tab */}
             {activeTab === "products" && (
               <ProductsTab
                 products={products}
                 categories={categories}
                 onSaveProducts={handleSaveProductsList}
                 triggerToast={triggerToast}
+                autoOpenAdd={autoOpenAddProduct}
+                onClearAutoOpen={() => setAutoOpenAddProduct(false)}
               />
             )}
 
-            {/* Layout Categorization list */}
+            {/* Categories hierarchical Tab */}
             {activeTab === "categories" && (
               <GeneralTabs
                 subTab="categories"
@@ -403,35 +755,37 @@ export default function AdminDashboard() {
                 onSaveTestimonials={handleSaveTestimonialsList}
                 onSaveSubscribers={handleSaveSubscribers}
                 triggerToast={triggerToast}
+                autoOpenAdd={autoOpenAddCategory}
+                onClearAutoOpen={() => setAutoOpenAddCategory(false)}
               />
             )}
 
-            {/* Homepage selections toggler */}
+            {/* Homepage selection toggler */}
             {activeTab === "homepage" && (
               <div className="space-y-6">
-                <div className="bg-white p-6 rounded-2xl border border-stone-100 shadow-xs">
+                <div className="bg-white dark:bg-stone-900 p-6 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs transition-colors duration-300">
                   <div>
-                    <h3 className="font-sans font-bold text-stone-900 text-sm mb-1">Interactive Homepage Selection Panels</h3>
-                    <p className="text-xs text-stone-400 font-medium max-w-xl">
-                      Configure exactly which luxury leather goods items emerge dynamically inside the **Top Picks**, **Featured Products**, and **Top Selling** carousels on the storefront page.
+                    <h3 className="font-sans font-bold text-stone-900 dark:text-white text-sm mb-1 uppercase tracking-wider">Homepage Carousel Selection Panel</h3>
+                    <p className="text-xs text-stone-400 dark:text-stone-500 font-medium max-w-xl">
+                      Toggle luxury leather articles into specific promo sequences on the public landing page.
                     </p>
                   </div>
 
-                  {/* Top Picks List with quick toggle button */}
+                  {/* Top Picks */}
                   <div className="mt-6 space-y-4">
-                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest font-mono block">Top Picks Section allocation</span>
+                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest font-mono block">Top Picks Selection Row</span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {products.map((p) => (
                         <div
                           key={p.id}
                           className={`p-3.5 rounded-xl border transition-all flex items-center justify-between ${
                             p.isTopPick
-                              ? "bg-amber-600/5 border-amber-600/30 shadow-xs"
-                              : "border-stone-200 bg-stone-50 text-stone-700"
+                              ? "bg-amber-655/5 border-amber-600/30 dark:border-amber-600/40"
+                              : "border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950/40 text-stone-700"
                           }`}
                         >
-                          <div className="flex items-center gap-2 max-w-40">
-                            <img src={p.images[0]} className="w-8 h-8 rounded-lg object-cover" alt="" />
+                          <div className="flex items-center gap-2 max-w-40 min-w-0">
+                            <img src={p.images[0]} className="w-8 h-8 rounded-lg object-cover shrink-0" alt="" />
                             <span className="text-xs font-bold truncate block">{p.name}</span>
                           </div>
                           <button
@@ -441,10 +795,10 @@ export default function AdminDashboard() {
                               handleSaveProductsList(updated);
                               triggerToast(`${p.name} ${!p.isTopPick ? "pinned to Top Picks" : "unpinned from Top Picks"}`, "info");
                             }}
-                            className={`p-1.5 rounded-lg transition-colors ${
+                            className={`p-1.5 rounded-lg transition-colors shrink-0 ${
                               p.isTopPick
-                                ? "bg-amber-600 text-white hover:bg-amber-700"
-                                : "bg-stone-200 hover:bg-stone-300 text-stone-800"
+                                ? "bg-amber-600 text-stone-950 hover:bg-amber-700"
+                                : "bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200"
                             }`}
                           >
                             <Check className="w-3.5 h-3.5" />
@@ -454,21 +808,21 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Featured list selector with quick toggle */}
-                  <div className="mt-8 space-y-4 pt-6 border-t border-stone-100">
-                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest font-mono block">Homepage Featured list allocation</span>
+                  {/* Featured list */}
+                  <div className="mt-8 space-y-4 pt-6 border-t border-stone-100 dark:border-stone-800">
+                    <span className="text-[10px] font-bold text-sky-500 uppercase tracking-widest font-mono block">Homepage Featured Rows</span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {products.map((p) => (
                         <div
                           key={p.id}
                           className={`p-3.5 rounded-xl border transition-all flex items-center justify-between ${
                             p.isFeatured
-                              ? "bg-amber-600/5 border-amber-600/30 shadow-xs"
-                              : "border-stone-200 bg-stone-50 text-stone-700"
+                              ? "bg-sky-500/5 border-sky-500/30 dark:border-sky-500/40"
+                              : "border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950/40 text-stone-700"
                           }`}
                         >
-                          <div className="flex items-center gap-2 max-w-40">
-                            <img src={p.images[0]} className="w-8 h-8 rounded-lg object-cover" alt="" />
+                          <div className="flex items-center gap-2 max-w-40 min-w-0">
+                            <img src={p.images[0]} className="w-8 h-8 rounded-lg object-cover shrink-0" alt="" />
                             <span className="text-xs font-bold truncate block">{p.name}</span>
                           </div>
                           <button
@@ -476,12 +830,12 @@ export default function AdminDashboard() {
                             onClick={() => {
                               const updated = products.map((x) => (x.id === p.id ? { ...x, isFeatured: !x.isFeatured } : x));
                               handleSaveProductsList(updated);
-                              triggerToast(`${p.name} ${!p.isFeatured ? "allocated to Featured rows" : "unlisted from Featured"}`, "info");
+                              triggerToast(`${p.name} ${!p.isFeatured ? "allocated to Featured products" : "unlisted from Featured Rows"}`, "info");
                             }}
-                            className={`p-1.5 rounded-lg transition-colors ${
+                            className={`p-1.5 rounded-lg transition-colors shrink-0 ${
                               p.isFeatured
-                                ? "bg-amber-600 text-white hover:bg-amber-700"
-                                : "bg-stone-200 hover:bg-stone-300 text-stone-800"
+                                ? "bg-sky-500 text-white hover:bg-sky-600"
+                                : "bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200"
                             }`}
                           >
                             <Check className="w-3.5 h-3.5" />
@@ -491,21 +845,21 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Top Selling list selector with quick toggle */}
-                  <div className="mt-8 space-y-4 pt-6 border-t border-stone-100">
-                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest font-mono block">Top Selling list allocation</span>
+                  {/* Top Selling */}
+                  <div className="mt-8 space-y-4 pt-6 border-t border-stone-100 dark:border-stone-800">
+                    <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest font-mono block">Homepage Best Sellers Selection</span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                       {products.map((p) => (
                         <div
                           key={p.id}
                           className={`p-3.5 rounded-xl border transition-all flex items-center justify-between ${
                             p.isTopSelling
-                              ? "bg-amber-600/5 border-amber-600/30 shadow-xs"
-                              : "border-stone-200 bg-stone-50 text-stone-700"
+                              ? "bg-emerald-500/5 border-emerald-500/30 dark:border-emerald-500/40"
+                              : "border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950/40 text-stone-700"
                           }`}
                         >
-                          <div className="flex items-center gap-2 max-w-40">
-                            <img src={p.images[0]} className="w-8 h-8 rounded-lg object-cover" alt="" />
+                          <div className="flex items-center gap-2 max-w-40 min-w-0">
+                            <img src={p.images[0]} className="w-8 h-8 rounded-lg object-cover shrink-0" alt="" />
                             <span className="text-xs font-bold truncate block">{p.name}</span>
                           </div>
                           <button
@@ -515,10 +869,10 @@ export default function AdminDashboard() {
                               handleSaveProductsList(updated);
                               triggerToast(`${p.name} ${!p.isTopSelling ? "promoted to Best Seller" : "unpinned from Best Sellers"}`, "info");
                             }}
-                            className={`p-1.5 rounded-lg transition-colors ${
+                            className={`p-1.5 rounded-lg transition-colors shrink-0 ${
                               p.isTopSelling
-                                ? "bg-amber-600 text-white hover:bg-amber-700"
-                                : "bg-stone-200 hover:bg-stone-300 text-stone-800"
+                                ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                                : "bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200"
                             }`}
                           >
                             <Check className="w-3.5 h-3.5" />
@@ -527,11 +881,12 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   </div>
+
                 </div>
               </div>
             )}
 
-            {/* Banner sliders Tab */}
+            {/* Banner Sliders Tab */}
             {activeTab === "banners" && (
               <BannersTab banners={banners} onSaveBanners={handleSaveBannersList} triggerToast={triggerToast} />
             )}
@@ -547,10 +902,12 @@ export default function AdminDashboard() {
                 onSaveTestimonials={handleSaveTestimonialsList}
                 onSaveSubscribers={handleSaveSubscribers}
                 triggerToast={triggerToast}
+                autoOpenAdd={autoOpenAddReview}
+                onClearAutoOpen={() => setAutoOpenAddReview(false)}
               />
             )}
 
-            {/* Newsletter sub Tab */}
+            {/* Newsletter Subscriber Tab */}
             {activeTab === "newsletter" && (
               <GeneralTabs
                 subTab="newsletter"
@@ -564,7 +921,7 @@ export default function AdminDashboard() {
               />
             )}
 
-            {/* Contact coordinates config */}
+            {/* Coordinates Contact Tab */}
             {activeTab === "contact" && (
               <SettingsTabs
                 subTab="contact"
@@ -584,7 +941,7 @@ export default function AdminDashboard() {
               />
             )}
 
-            {/* Policy static pages */}
+            {/* Pages policies Tab */}
             {activeTab === "pages" && (
               <SettingsTabs
                 subTab="pages"
@@ -604,7 +961,7 @@ export default function AdminDashboard() {
               />
             )}
 
-            {/* Photos galleries library */}
+            {/* Media Gallery Tab */}
             {activeTab === "media" && (
               <SettingsTabs
                 subTab="media"
@@ -624,7 +981,7 @@ export default function AdminDashboard() {
               />
             )}
 
-            {/* Coloring appearance stylesheet */}
+            {/* Appearance Styles settings Tab */}
             {activeTab === "appearance" && (
               <SettingsTabs
                 subTab="appearance"
@@ -644,7 +1001,7 @@ export default function AdminDashboard() {
               />
             )}
 
-            {/* Website core variables */}
+            {/* Web core settings Tab */}
             {activeTab === "web" && (
               <SettingsTabs
                 subTab="web"
@@ -664,7 +1021,7 @@ export default function AdminDashboard() {
               />
             )}
 
-            {/* Supervisory profile admin */}
+            {/* Admin supervisor Profile Tab */}
             {activeTab === "profile" && (
               <SettingsTabs
                 subTab="profile"
@@ -683,38 +1040,12 @@ export default function AdminDashboard() {
                 triggerToast={triggerToast}
               />
             )}
+
           </div>
+
         </main>
       </div>
 
-      {/* ==================== FLOATING TOASTS PANEL ==================== */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none" id="toasts-dock">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className={`p-4 rounded-xl flex items-center gap-3 shadow-lg pointer-events-auto max-w-sm animate-slideIn ${
-              t.type === "success"
-                ? "bg-stone-900 border border-stone-800 text-stone-100"
-                : t.type === "error"
-                ? "bg-rose-950/90 text-rose-100 border border-rose-900"
-                : t.type === "warning"
-                ? "bg-amber-950/90 text-amber-100 border border-amber-900"
-                : "bg-stone-800 text-white"
-            }`}
-          >
-            {t.type === "success" ? (
-              <CheckCircle className="w-5 h-5 text-amber-500" />
-            ) : t.type === "error" ? (
-              <AlertCircle className="w-5 h-5 text-rose-500" />
-            ) : t.type === "warning" ? (
-              <AlertCircle className="w-5 h-5 text-amber-500" />
-            ) : (
-              <Clock className="w-5 h-5 text-stone-200" />
-            )}
-            <span className="text-xs font-bold leading-normal font-sans">{t.msg}</span>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

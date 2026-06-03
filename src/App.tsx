@@ -6,6 +6,8 @@
 import { ToastProvider } from "./context/ToastContext";
 import { CartProvider } from "./context/CartContext";
 import { WishlistProvider } from "./context/WishlistContext";
+import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import AppRoutes from "./routes/AppRoutes";
 
 export default function App() {
@@ -13,7 +15,11 @@ export default function App() {
     <ToastProvider>
       <CartProvider>
         <WishlistProvider>
-          <AppRoutes />
+          <AuthProvider>
+            <ThemeProvider>
+              <AppRoutes />
+            </ThemeProvider>
+          </AuthProvider>
         </WishlistProvider>
       </CartProvider>
     </ToastProvider>

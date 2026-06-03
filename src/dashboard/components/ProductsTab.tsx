@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Plus, Filter, Edit2, Trash2, Eye, X, Check, Save } from "lucide-react";
 import { Product, Category, Review } from "../../types";
 
@@ -7,9 +7,18 @@ interface Props {
   categories: Category[];
   onSaveProducts: (list: Product[]) => void;
   triggerToast: (msg: string, type: "success" | "error" | "info" | "warning") => void;
+  autoOpenAdd?: boolean;
+  onClearAutoOpen?: () => void;
 }
 
-export default function ProductsTab({ products, categories, onSaveProducts, triggerToast }: Props) {
+export default function ProductsTab({
+  products,
+  categories,
+  onSaveProducts,
+  triggerToast,
+  autoOpenAdd,
+  onClearAutoOpen,
+}: Props) {
   // Search & Filter state
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -66,6 +75,15 @@ export default function ProductsTab({ products, categories, onSaveProducts, trig
     setImageUrlInput("");
     setIsAddMode(true);
   };
+
+  useEffect(() => {
+    if (autoOpenAdd) {
+      handleOpenAdd();
+      if (onClearAutoOpen) {
+        onClearAutoOpen();
+      }
+    }
+  }, [autoOpenAdd]);
 
   const handleOpenEdit = (p: Product) => {
     setEditProduct(p);

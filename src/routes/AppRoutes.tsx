@@ -8,6 +8,8 @@ import Wishlist from "../pages/Wishlist";
 import About from "../pages/About";
 import Contact from "../pages/Contact";
 import AdminDashboard from "../pages/AdminDashboard";
+import AdminLogin from "../pages/AdminLogin";
+import ProtectedRoute from "../components/ProtectedRoute";
 import NotFound from "../pages/NotFound";
 
 export default function AppRoutes() {
@@ -24,7 +26,15 @@ export default function AppRoutes() {
           <Route path="contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Route>
-        <Route path="admin" element={<AdminDashboard />} />
+        <Route
+          path="admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="admin/login" element={<AdminLogin />} />
       </Routes>
     </BrowserRouter>
   );
