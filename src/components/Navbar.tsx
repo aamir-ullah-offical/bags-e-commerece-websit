@@ -15,11 +15,14 @@ import {
   Shield,
   LogIn,
   UserPlus,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import { useThemeContext } from "../context/ThemeContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -27,6 +30,7 @@ export default function Navbar() {
   const { wishlistItems } = useWishlist();
   const { isAuthenticated, user, logout } = useAuth();
   const { showToast } = useToast();
+  const { theme, toggleTheme } = useThemeContext();
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -143,10 +147,35 @@ export default function Navbar() {
             {/* Search Toggle */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
-              className="p-2 rounded-full text-stone-600 hover:text-stone-950 hover:bg-stone-100 transition-all duration-300"
+              className="p-2 rounded-full text-stone-600 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-all duration-300"
               aria-label="Toggle search"
             >
               <Search className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+            </button>
+
+            {/* Dynamic Theme System Switching button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full text-stone-600 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-all duration-300 relative overflow-hidden"
+              aria-label="Toggle visual theme"
+              title={`Switch to ${theme === "light" ? "Dark Theme" : "Light Theme"}`}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={theme}
+                  initial={{ y: -15, opacity: 0, rotate: -45 }}
+                  animate={{ y: 0, opacity: 1, rotate: 0 }}
+                  exit={{ y: 15, opacity: 0, rotate: 45 }}
+                  transition={{ duration: 0.15 }}
+                  className="w-5 h-5 sm:w-5.5 sm:h-5.5 flex items-center justify-center"
+                >
+                  {theme === "light" ? (
+                    <Moon className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-stone-600" />
+                  ) : (
+                    <Sun className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-amber-400" />
+                  )}
+                </motion.div>
+              </AnimatePresence>
             </button>
 
             {/* Wishlist Link */}
@@ -190,19 +219,19 @@ export default function Navbar() {
                 </button>
               ) : (
                 // Guest Login/Register links (Desktop)
-                <div className="hidden sm:flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-3">
                   <Link
                     to="/login"
-                    className="flex items-center gap-1 text-xs font-bold tracking-widest uppercase text-stone-600 hover:text-stone-950 px-2.5 py-2 hover:bg-stone-50 rounded-lg transition-all duration-150"
+                    className="flex items-center gap-1.5 text-xs font-bold tracking-widest uppercase text-stone-600 dark:text-stone-350 hover:text-[#8c6d3f] dark:hover:text-amber-400 px-3 py-2 rounded-lg transition-all duration-200"
                   >
-                    <LogIn className="w-4 h-4 text-stone-450" />
+                    <LogIn className="w-3.5 h-3.5" />
                     Sign In
                   </Link>
                   <Link
                     to="/register"
-                    className="flex items-center gap-1 text-xs font-bold tracking-widest uppercase bg-stone-100 hover:bg-[#ece2d6] text-[#8c6d3f] border border-stone-200/60 px-3.5 py-2 rounded-xl transition-all duration-150"
+                    className="flex items-center gap-1.5 text-xs font-bold tracking-widest uppercase bg-stone-950 dark:bg-amber-500 hover:bg-[#8c6d3f] dark:hover:bg-amber-400 text-white dark:text-stone-950 px-4.5 py-2 rounded-full border border-transparent shadow-md hover:shadow-lg transition-all duration-200"
                   >
-                    <UserPlus className="w-4 h-4 text-[#8c6d3f]" />
+                    <UserPlus className="w-3.5 h-3.5" />
                     Register
                   </Link>
                 </div>
@@ -212,10 +241,10 @@ export default function Navbar() {
               {!isAuthenticated && (
                 <Link
                   to="/login"
-                  className="sm:hidden p-2 rounded-full text-stone-600 hover:text-stone-950 hover:bg-stone-50 border border-stone-200/80"
+                  className="sm:hidden p-2.5 rounded-full text-stone-600 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-850 border border-stone-200 dark:border-stone-800"
                   aria-label="Sign In"
                 >
-                  <LogIn className="w-5 h-5 text-stone-600" />
+                  <LogIn className="w-5 h-5" />
                 </Link>
               )}
 
@@ -333,9 +362,7 @@ export default function Navbar() {
             </motion.div>
           )}
         </AnimatePresence>
-      </header>
-
-      {/* MOBILE NAV MENU SCREEN */}
+      </header>      {/* MOBILE NAV MENU SCREEN */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
@@ -345,7 +372,7 @@ export default function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs"
+              className="fixed inset-0 z-50 bg-stone-950/70 backdrop-blur-xs"
             />
 
             {/* Menu container */}
@@ -354,13 +381,13 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              className="fixed inset-y-0 left-0 max-w-xs w-full z-50 bg-white shadow-2xl p-6 flex flex-col justify-between"
+              className="fixed inset-y-0 left-0 max-w-xs w-full z-50 bg-white dark:bg-stone-900 border-r dark:border-stone-850 shadow-2xl p-6 flex flex-col justify-between"
             >
               <div>
                 {/* Header close block */}
-                <div className="flex items-center justify-between pb-6 border-b border-stone-100">
-                  <div className="flex items-baseline gap-1 animate-pulse">
-                    <span className="font-sans font-extrabold text-xl tracking-tight text-stone-950">
+                <div className="flex items-center justify-between pb-6 border-b border-stone-100 dark:border-stone-800">
+                  <div className="flex items-baseline gap-1">
+                    <span className="font-sans font-extrabold text-xl tracking-tight text-stone-950 dark:text-white">
                       MAISON
                     </span>
                     <span className="text-amber-500 font-mono text-xxs font-bold tracking-widest uppercase">
@@ -369,7 +396,7 @@ export default function Navbar() {
                   </div>
                   <button
                     onClick={() => setMobileMenuOpen(false)}
-                    className="p-1 rounded-lg hover:bg-stone-100 text-stone-600 transition-colors"
+                    className="p-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -385,8 +412,8 @@ export default function Navbar() {
                       className={({ isActive }) =>
                         `text-sm font-bold tracking-widest uppercase py-1 transition-colors ${
                           isActive
-                            ? "text-amber-600"
-                            : "text-stone-700 hover:text-stone-950"
+                            ? "text-amber-600 dark:text-amber-400"
+                            : "text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white"
                         }`
                       }
                     >
@@ -399,7 +426,7 @@ export default function Navbar() {
                     <NavLink
                       to="/admin/dashboard"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-sm font-bold tracking-widest uppercase py-1 text-amber-600 flex items-center gap-2 border-t border-stone-100 pt-4"
+                      className="text-sm font-bold tracking-widest uppercase py-1 text-amber-600 dark:text-amber-500 flex items-center gap-2 border-t border-stone-100 dark:border-stone-800 pt-4"
                     >
                       <Shield className="w-4 h-4" />
                       Admin Dashboard
@@ -409,34 +436,34 @@ export default function Navbar() {
               </div>
 
               {/* Bottom section in mobile drawer */}
-              <div className="pt-6 border-t border-stone-100 flex flex-col gap-4">
+              <div className="pt-6 border-t border-stone-100 dark:border-stone-800 flex flex-col gap-4">
                 {/* Mobile Authentication Quick Action */}
                 {!isAuthenticated ? (
                   <div className="flex flex-col gap-2">
                     <Link
                       to="/login"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-1 text-xs font-bold tracking-widest uppercase text-white bg-stone-950 hover:bg-stone-900 py-3 rounded-xl shadow-xs transition-colors"
+                      className="flex items-center justify-center gap-1.5 text-xs font-bold tracking-widest uppercase text-white bg-stone-950 dark:bg-amber-500 dark:text-stone-950 hover:bg-stone-800 dark:hover:bg-amber-400 py-3 rounded-xl shadow-xs transition-colors"
                     >
-                      <LogIn className="w-4 h-4 text-amber-400" />
+                      <LogIn className="w-4 h-4" />
                       Sign In
                     </Link>
                     <Link
                       to="/register"
                       onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-1 text-xs font-bold tracking-widest uppercase text-stone-700 bg-stone-50 hover:bg-stone-100 border border-stone-200 py-2.5 rounded-xl transition-colors"
+                      className="flex items-center justify-center gap-1 text-xs font-bold tracking-widest uppercase text-stone-750 dark:text-stone-200 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-750 border border-stone-200 dark:border-stone-700 py-2.5 rounded-xl transition-colors"
                     >
-                      <UserPlus className="w-4 h-4 text-stone-500" />
+                      <UserPlus className="w-4 h-4 text-stone-500 dark:text-stone-400" />
                       Register Account
                     </Link>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
-                    <div className="bg-stone-50 rounded-xl p-3 border border-stone-100 mb-1">
-                      <p className="text-xs font-bold text-stone-900 truncate">
+                    <div className="bg-stone-50 dark:bg-stone-950/40 rounded-xl p-3 border border-stone-100 dark:border-stone-800 mb-1">
+                      <p className="text-xs font-bold text-stone-900 dark:text-white truncate">
                         {user.fullName}
                       </p>
-                      <p className="text-[10px] text-stone-400 truncate">
+                      <p className="text-[10px] text-stone-400 dark:text-stone-500 truncate">
                         {user.email}
                       </p>
                     </div>
@@ -446,15 +473,15 @@ export default function Navbar() {
                         setMobileMenuOpen(false);
                         handleMenuItemPlaceholder("My Orders");
                       }}
-                      className="flex items-center justify-between p-3 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors text-left text-xs font-bold uppercase tracking-wider text-stone-700"
+                      className="flex items-center justify-between p-3 rounded-lg bg-stone-50 dark:bg-stone-800/40 hover:bg-stone-100 dark:hover:bg-stone-750 border border-stone-150 dark:border-stone-800 text-left text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 transition-colors"
                     >
                       <span>My Orders</span>
-                      <ClipboardList className="w-4 h-4 text-stone-450" />
+                      <ClipboardList className="w-4 h-4 text-stone-450 dark:text-stone-400" />
                     </button>
 
                     <button
                       onClick={handleLogoutClick}
-                      className="flex items-center justify-center gap-1.5 text-xs font-bold tracking-widest uppercase text-white bg-rose-600 hover:bg-rose-700 py-3 rounded-xl transition-colors mt-2"
+                      className="flex items-center justify-center gap-1.5 text-xs font-bold tracking-widest uppercase text-white bg-rose-600 hover:bg-rose-750 py-3 rounded-xl transition-colors mt-2 shadow-sm"
                     >
                       <LogOut className="w-4 h-4" />
                       Sign Out
@@ -465,18 +492,18 @@ export default function Navbar() {
                 <Link
                   to="/wishlist"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between p-3 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors"
+                  className="flex items-center justify-between p-3 rounded-lg bg-stone-50 dark:bg-stone-800/40 hover:bg-stone-100 dark:hover:bg-stone-750 border border-stone-150 dark:border-stone-800 transition-colors"
                 >
-                  <span className="text-xs font-bold uppercase tracking-wider text-stone-700 flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-stone-750 dark:text-stone-300 flex items-center gap-2">
                     <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
                     My Wishlist
                   </span>
-                  <span className="bg-stone-200 text-stone-800 text-xxs font-bold px-2 py-0.5 rounded-full font-mono">
+                  <span className="bg-stone-250 dark:bg-stone-800 text-stone-850 dark:text-stone-100 text-xxs font-bold px-2 py-0.5 rounded-full font-mono">
                     {wishlistCount}
                   </span>
                 </Link>
 
-                <p className="text-xxs text-stone-400 font-medium">
+                <p className="text-xxs text-stone-450 dark:text-stone-500 font-medium leading-relaxed">
                   © {new Date().getFullYear()} Maison de Sac Luxury Products. All
                   rights reserved. Premium custom design.
                 </p>
