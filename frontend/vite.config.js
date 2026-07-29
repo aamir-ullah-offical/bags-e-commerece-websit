@@ -43,6 +43,9 @@ export default defineConfig(() => {
             if (id.includes('node_modules/axios')) {
               return 'http';
             }
+            if (id.includes('node_modules/lucide-react')) {
+              return 'icons';
+            }
           },
           chunkFileNames: 'assets/[name]-[hash].js',
           entryFileNames: 'assets/[name]-[hash].js',

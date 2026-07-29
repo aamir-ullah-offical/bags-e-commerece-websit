@@ -127,7 +127,7 @@ export const getMyOrders = async (req, res) => {
   const skip = (Number(page) - 1) * Number(limit);
 
   const [orders, total] = await Promise.all([
-    Order.find({ user: req.user._id }).sort("-createdAt").skip(skip).limit(Number(limit)),
+    Order.find({ user: req.user._id }).sort("-createdAt").skip(skip).limit(Number(limit)).lean(),
     Order.countDocuments({ user: req.user._id }),
   ]);
 
@@ -135,7 +135,7 @@ export const getMyOrders = async (req, res) => {
 };
 
 export const getOrderById = async (req, res) => {
-  const order = await Order.findById(req.params.id).populate("user", "fullName email");
+  const order = await Order.findById(req.params.id).populate("user", "fullName email").lean();
 
   if (!order) return R.error(res, "Order not found", 404);
 
@@ -158,7 +158,8 @@ export const getAllOrders = async (req, res) => {
       .populate("user", "fullName email avatar")
       .sort("-createdAt")
       .skip(skip)
-      .limit(Number(limit)),
+      .limit(Number(limit))
+      .lean(),
     Order.countDocuments(filter),
   ]);
 
@@ -302,17 +303,24 @@ export const cancelOrder = async (req, res) => {
     isCompleted: true,
   });
 
-  // Restore stock; floor soldCount at 0 to prevent negative values
-  await Promise.all(
-    order.items.map(async (item) => {
-      const p = await Product.findById(item.product).select("soldCount");
-      if (!p) return;
-      return Product.findByIdAndUpdate(item.product, {
-        $inc: { stock: item.quantity },
-        $set: { soldCount: Math.max(0, (p.soldCount || 0) - item.quantity) },
-      });
-    })
-  );
+  // Restore stock atomically — single bulkWrite instead of N×2 queries
+  if (order.items.length > 0) {
+    await Product.bulkWrite(
+      order.items.map((item) => ({
+        updateOne: {
+          filter: { _id: item.product },
+          update: [
+            {
+              $set: {
+                stock: { $add: ["$stock", item.quantity] },
+                soldCount: { $max: [0, { $subtract: ["$soldCount", item.quantity] }] },
+              },
+            },
+          ],
+        },
+      }))
+    );
+  }
 
   await order.save();
   R.success(res, { order }, "Order cancelled");

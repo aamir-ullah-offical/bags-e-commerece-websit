@@ -113,8 +113,8 @@ export const productService = {
     const cached = getCached(key);
     if (cached) return cached;
     const result = await tryApi(async () => {
-      const { data } = await api.get("/products", { params: { isTopSelling: true } });
-      return norm(data.data || data.products || data);
+      const { data } = await api.get("/products/top-selling");
+      return norm(data.data?.products || data.products || data);
     }, productsData.filter((p) => p.isTopSelling));
     setCache(key, result);
     return result;
@@ -137,8 +137,8 @@ export const productService = {
     const cached = getCached(key);
     if (cached) return cached;
     const result = await tryApi(async () => {
-      const { data } = await api.get("/products", { params: { isFeatured: true } });
-      return norm(data.data || data.products || data);
+      const { data } = await api.get("/products/featured");
+      return norm(data.data?.products || data.products || data);
     }, productsData.filter((p) => p.isFeatured));
     setCache(key, result);
     return result;
@@ -149,8 +149,8 @@ export const productService = {
     const cached = getCached(key);
     if (cached) return cached;
     const result = await tryApi(async () => {
-      const { data } = await api.get("/products", { params: { isTopPick: true } });
-      return norm(data.data || data.products || data);
+      const { data } = await api.get("/products/top-picks");
+      return norm(data.data?.products || data.products || data);
     }, productsData.filter((p) => p.isTopPick));
     setCache(key, result);
     return result;

@@ -47,9 +47,8 @@ export const getProducts = async (req, res) => {
 };
 
 export const getProductById = async (req, res) => {
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findById(req.params.id).lean();
   if (!product) return R.error(res, "Product not found", 404);
-  // Non-admin users cannot see inactive products
   if (!product.isActive && req.user?.role !== "admin") {
     return R.error(res, "Product not found", 404);
   }

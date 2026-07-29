@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { cartService } from "../services/cartService";
 import { useAuth } from "./AuthContext";
 
@@ -68,14 +68,12 @@ export function CartProvider({ children }) {
  }
  }, [cartItems, userId]);
 
- /* ─── Actions ─── */
- const addToCart = async (product, quantity = 1, selectedColor) => {
+  /* ─── Actions ─── */
+  const addToCart = useCallback(async (product, quantity = 1, selectedColor) => {
     const discountedPrice = Math.round(product.price * (1 - (product.discount || 0) / 100));
     setCartItems((prev) => {
       const pid = product._id || product.id;
-      const idx = prev.findIndex(
-        (i) => (i.product._id || i.product.id) === pid
-      );
+      const idx = prev.findIndex((i) => (i.product._id || i.product.id) === pid);
       if (idx > -1) {
         const updated = [...prev];
         updated[idx] = {
@@ -85,97 +83,69 @@ export function CartProvider({ children }) {
         };
         return updated;
       }
-      return [
-        ...prev,
-        { product, quantity, selectedColor: selectedColor || product.color, unitPrice: discountedPrice },
-      ];
+      return [...prev, { product, quantity, selectedColor: selectedColor || product.color, unitPrice: discountedPrice }];
     });
+    if (isAuthenticated) {
+      try { await cartService.addToCart(product._id || product.id, quantity, selectedColor); } catch { /* silent */ }
+    }
+  }, [isAuthenticated]);
 
- if (isAuthenticated) {
- try {
- await cartService.addToCart(product._id || product.id, quantity, selectedColor);
- } catch {
- // Silent fail — optimistic update already applied
- }
- }
- };
+  const removeFromCart = useCallback(async (productId) => {
+    setCartItems((prev) => prev.filter((i) => (i.product._id || i.product.id) !== productId));
+    if (isAuthenticated) {
+      try { await cartService.removeFromCart(productId); } catch { /* silent */ }
+    }
+  }, [isAuthenticated]);
 
- const removeFromCart = async (productId) => {
- setCartItems((prev) =>
- prev.filter(
- (i) => (i.product._id || i.product.id) !== productId
- )
- );
+  const updateQuantity = useCallback(async (productId, quantity) => {
+    if (quantity <= 0) { removeFromCart(productId); return; }
+    setCartItems((prev) =>
+      prev.map((i) =>
+        (i.product._id || i.product.id) === productId
+          ? { ...i, quantity: Math.min(i.product.stock || 99, quantity) }
+          : i
+      )
+    );
+    if (isAuthenticated) {
+      try { await cartService.updateQuantity(productId, quantity); } catch { /* silent */ }
+    }
+  }, [isAuthenticated, removeFromCart]);
 
- if (isAuthenticated) {
- try {
- await cartService.removeFromCart(productId);
- } catch {
- // Silent fail
- }
- }
- };
+  const clearCart = useCallback(async () => {
+    setCartItems([]);
+    if (isAuthenticated) {
+      try { await cartService.clearCart(); } catch { /* silent */ }
+    }
+  }, [isAuthenticated]);
 
- const updateQuantity = async (productId, quantity) => {
- if (quantity <= 0) {
- removeFromCart(productId);
- return;
- }
- setCartItems((prev) =>
- prev.map((i) =>
- (i.product._id || i.product.id) === productId
- ? { ...i, quantity: Math.min(i.product.stock || 99, quantity) }
- : i
- )
- );
-
- if (isAuthenticated) {
- try {
- await cartService.updateQuantity(productId, quantity);
- } catch {
- // Silent fail
- }
- }
- };
-
- const clearCart = async () => {
- setCartItems([]);
- if (isAuthenticated) {
- try {
- await cartService.clearCart();
- } catch {
- // Silent fail
- }
- }
- };
-
- const getCartTotal = () =>
+  const getCartTotal = useCallback(() =>
     cartItems.reduce((acc, item) => {
-      // Prefer server-confirmed unit price; fall back to computing from product
       const unitPrice = item.unitPrice
         ?? Math.round(item.product.price * (1 - (item.product.discount || 0) / 100));
       return acc + unitPrice * item.quantity;
-    }, 0);
+    }, 0),
+  [cartItems]);
 
- const getCartCount = () =>
- cartItems.reduce((acc, item) => acc + item.quantity, 0);
+  const getCartCount = useCallback(() =>
+    cartItems.reduce((acc, item) => acc + item.quantity, 0),
+  [cartItems]);
 
- return (
- <CartContext.Provider
- value={{
- cartItems,
- addToCart,
- removeFromCart,
- updateQuantity,
- clearCart,
- getCartTotal,
- getCartCount,
- syncFromServer,
- }}
- >
- {children}
- </CartContext.Provider>
- );
+  const value = useMemo(() => ({
+    cartItems,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    getCartTotal,
+    getCartCount,
+    syncFromServer,
+  }), [cartItems, addToCart, removeFromCart, updateQuantity, clearCart, getCartTotal, getCartCount, syncFromServer]);
+
+  return (
+    <CartContext.Provider value={value}>
+      {children}
+    </CartContext.Provider>
+  );
 }
 
 export function useCart() {

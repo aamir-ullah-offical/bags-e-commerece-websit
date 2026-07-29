@@ -105,19 +105,21 @@ export const getUserById = async (req, res) => {
 export const updateUser = async (req, res) => {
   const { fullName, email, phone, role, isActive } = req.body;
 
-  const user = await User.findById(req.params.id);
+  const updates = {};
+  if (fullName  !== undefined) updates.fullName  = fullName;
+  if (email     !== undefined) updates.email     = email;
+  if (phone     !== undefined) updates.phone     = phone;
+  if (role      !== undefined) updates.role      = role;
+  if (isActive  !== undefined) updates.isActive  = isActive;
+
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    updates,
+    { new: true, runValidators: true }
+  ).select("-password");
+
   if (!user) return R.error(res, "User not found", 404);
-
-  if (fullName !== undefined) user.fullName = fullName;
-  if (email !== undefined) user.email = email;
-  if (phone !== undefined) user.phone = phone;
-  if (role !== undefined) user.role = role;
-  if (isActive !== undefined) user.isActive = isActive;
-
-  await user.save();
-
-  const updated = await User.findById(user._id).select("-password");
-  R.success(res, { user: updated }, "User updated");
+  R.success(res, { user }, "User updated");
 };
 
 export const updateUserStatus = async (req, res) => {
