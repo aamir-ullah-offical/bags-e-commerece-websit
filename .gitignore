@@ -73,7 +73,7 @@ temp/
 *.orig
 
 # ─── MongoDB local data (if running mongod with --dbpath here) ────────────────
-data/
+/data/
 *.pid
 
 # ─── Package manager locks (keep package-lock.json, ignore others) ────────────

@@ -1,0 +1,465 @@
+[
+  {
+    "id": 1,
+    "name": "Classic French Handbag",
+    "category": "Handbags",
+    "brand": "Atelier",
+    "price": 68000,
+    "discount": 15,
+    "rating": 4.9,
+    "stock": 12,
+    "material": "Full-grain Leather",
+    "color": "Tan Brown",
+    "isFeatured": true,
+    "isTopPick": true,
+    "isTopSelling": true,
+    "soldCount": 320,
+    "createdAt": "2026-01-15",
+    "images": [
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=600",
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=600"
+    ],
+    "description": "Handcrafted from absolute premium full-grain Italian leather, this structured bag represents Parisian luxury. Custom-designed polished gold hardware, flawless edge hand-lacquering, and an intuitive leather strap complete its legendary profile.",
+    "specifications": {
+      "Dimensions": "11\" W x 8.5\" H x 4.2\" D",
+      "Weight": "1.4 lbs",
+      "Style": "Double Compartment Shoulder",
+      "Closure": "Flap with Brass Twist Lock",
+      "Lining": "Soft Napa Lambskin"
+    },
+    "reviews": [
+      { "name": "Isabella Vance", "rating": 5, "date": "2026-05-12", "comment": "Absolutely sublime. The stitching matches standard couture pieces." },
+      { "name": "Marcus Aurel", "rating": 4.8, "date": "2026-04-30", "comment": "Incredible leather texture. Gold metal closure is exceptional." }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Urban Commuter Rugged Backpack",
+    "category": "Backpacks",
+    "brand": "Nomad",
+    "price": 46500,
+    "discount": 10,
+    "rating": 4.8,
+    "stock": 18,
+    "material": "Waxed Canvas & Suede",
+    "color": "Forest Green",
+    "isFeatured": true,
+    "isTopPick": false,
+    "isTopSelling": true,
+    "soldCount": 450,
+    "createdAt": "2026-02-10",
+    "images": [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600",
+      "https://images.unsplash.com/photo-1622560480654-d92214f1880e?q=80&w=600"
+    ],
+    "description": "An incredibly robust travel companion, incorporating heavy-duty 18oz water-repellent canvas matched with full-grain leather zipper pulls.",
+    "specifications": {
+      "Dimensions": "12.5\" W x 18\" H x 6\" D",
+      "Weight": "2.1 lbs",
+      "Capacity": "24 Liters",
+      "Laptop Pocket": "Fits up to 16\" MacBook Pro",
+      "Waterproofing": "Water-resistant waxed outer"
+    },
+    "reviews": [
+      { "name": "Tobias Schmidt", "rating": 5, "date": "2026-05-18", "comment": "Walked through heavy rain, laptop stayed bone-dry." }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Voyager Weekender Duffle",
+    "category": "Travel Bags",
+    "brand": "Nomad",
+    "price": 78500,
+    "discount": 20,
+    "rating": 4.9,
+    "stock": 8,
+    "material": "Suede Leather",
+    "color": "Mineral Black",
+    "isFeatured": false,
+    "isTopPick": true,
+    "isTopSelling": false,
+    "soldCount": 88,
+    "createdAt": "2026-05-20",
+    "images": [
+      "https://images.unsplash.com/photo-1608541737042-87a12275d313?q=80&w=600",
+      "https://images.unsplash.com/photo-1547949003-9792a18a2601?q=80&w=600"
+    ],
+    "description": "Reinventing the weekend get-away. Features a dedicated shoe compartment, water-resistant base lining, and adjustable luggage strap.",
+    "specifications": {
+      "Dimensions": "20\" W x 11\" H x 9\" D",
+      "Weight": "3.2 lbs",
+      "Capacity": "35 Liters",
+      "Shoe Compartment": "Separate ventilated lower zipper",
+      "Meets Airline Carry-on Regulations": "Yes"
+    },
+    "reviews": [
+      { "name": "Christian Bell", "rating": 4.9, "date": "2026-05-25", "comment": "Packs all my clothes for a 4-day trip plus sneakers." }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Minimalist Slim Wallet",
+    "category": "Wallets",
+    "brand": "Atelier",
+    "price": 21000,
+    "discount": 0,
+    "rating": 4.7,
+    "stock": 50,
+    "material": "Saffiano Leather",
+    "color": "Navy Blue",
+    "isFeatured": true,
+    "isTopPick": false,
+    "isTopSelling": true,
+    "soldCount": 680,
+    "createdAt": "2026-01-05",
+    "images": [
+      "https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=600",
+      "https://images.unsplash.com/photo-1508296695146-257a814070b4?q=80&w=600"
+    ],
+    "description": "Exquisite slim pocket profiles without sacrifice. RFID-blocking barriers embedded natively inside layers.",
+    "specifications": {
+      "Dimensions": "4.1\" W x 3.0\" H x 0.25\" D",
+      "Weight": "0.15 lbs",
+      "Card Capacity": "Up to 8 cards & cash",
+      "RFID Protection": "Yes, certified frequency blocking",
+      "Origin": "Tanneries of Florence, Italy"
+    },
+    "reviews": [
+      { "name": "Clara Winters", "rating": 4.7, "date": "2026-03-10", "comment": "Super clean. Saffiano finish prevents scratching." }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Everyday Structured Tote",
+    "category": "Tote Bags",
+    "brand": "EcoWeave",
+    "price": 26500,
+    "discount": 5,
+    "rating": 4.6,
+    "stock": 35,
+    "material": "Organic Canvas",
+    "color": "Natural Cream",
+    "isFeatured": true,
+    "isTopPick": false,
+    "isTopSelling": false,
+    "soldCount": 120,
+    "createdAt": "2026-05-15",
+    "images": [
+      "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=600",
+      "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?q=80&w=600"
+    ],
+    "description": "Certified sustainable heavyweight raw organic cotton canvas with luxurious hand-stitched Italian leather shoulder loops.",
+    "specifications": {
+      "Dimensions": "15\" W x 14\" H x 5\" D",
+      "Weight": "1.0 lbs",
+      "Inside Pocket": "Zipped hanging secure compartment",
+      "Sustainable Certifications": "GOTS Standard Organic Thread",
+      "Strap Drop": "10.5\" clearance"
+    },
+    "reviews": [
+      { "name": "Lila Vance", "rating": 4.5, "date": "2026-05-24", "comment": "Fabulous size. Fits laptop, water bottle, and cosmetics." }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Sleek Executive Laptop Messenger",
+    "category": "Laptop Bags",
+    "brand": "Atelier",
+    "price": 52000,
+    "discount": 10,
+    "rating": 4.8,
+    "stock": 15,
+    "material": "Full-grain Leather",
+    "color": "Dark Charcoal",
+    "isFeatured": false,
+    "isTopPick": true,
+    "isTopSelling": true,
+    "soldCount": 195,
+    "createdAt": "2026-03-22",
+    "images": [
+      "https://images.unsplash.com/photo-1600857062241-98e5dba7f214?q=80&w=600",
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=600"
+    ],
+    "description": "Elegant professional design with unmatched storage capability. Fully padded to protect devices from external vibrations.",
+    "specifications": {
+      "Dimensions": "15.5\" W x 11.5\" H x 3.5\" D",
+      "Weight": "1.9 lbs",
+      "Compartment Screen": "Secure buckle fits 15.6\" screens",
+      "Hardware": "Brushed Steel Rustproof Alloys"
+    },
+    "reviews": [
+      { "name": "Jeremy Finch", "rating": 5, "date": "2026-05-01", "comment": "Substantial, high-quality structure. Shoulder strap doesn't dig in." }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Luxury Suede Evening Clutch",
+    "category": "Clutches",
+    "brand": "Atelier",
+    "price": 41000,
+    "discount": 25,
+    "rating": 4.7,
+    "stock": 22,
+    "material": "Italian Suede",
+    "color": "Emerald Green",
+    "isFeatured": false,
+    "isTopPick": false,
+    "isTopSelling": false,
+    "soldCount": 74,
+    "createdAt": "2026-04-18",
+    "images": [
+      "https://images.unsplash.com/photo-1566150905458-1bf1fc15a6a0?q=80&w=600",
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=600"
+    ],
+    "description": "Intensely pigmented authentic Italian velvet-touch suede for formal occasions. Detachable gilded chain shoulder-strap included.",
+    "specifications": {
+      "Dimensions": "9.5\" W x 5.0\" H x 2.0\" D",
+      "Weight": "0.6 lbs",
+      "Clasp Type": "Hidden magnetic safety snaps",
+      "Chain Attachment": "Detachable 22\" drop brass chain"
+    },
+    "reviews": [
+      { "name": "Camila Gomez", "rating": 4.7, "date": "2026-04-25", "comment": "Color is incredibly beautiful. Compliments galore at the gala event!" }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "Premium Leather Cardholder",
+    "category": "Accessories",
+    "brand": "Atelier",
+    "price": 15500,
+    "discount": 0,
+    "rating": 4.9,
+    "stock": 40,
+    "material": "Napa Leather",
+    "color": "Blush Pink",
+    "isFeatured": false,
+    "isTopPick": false,
+    "isTopSelling": true,
+    "soldCount": 420,
+    "createdAt": "2026-03-01",
+    "images": [
+      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=600",
+      "https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=600"
+    ],
+    "description": "A luxury pockets-cut accent cardholder with hand-stitched details and high-flex card pocket sleeves for longevity.",
+    "specifications": {
+      "Dimensions": "4.0\" W x 2.75\" H x 0.15\" D",
+      "Weight": "0.08 lbs",
+      "Slots": "4 cards plus 1 center slot",
+      "Finish": "Nappa pebbled topcoat"
+    },
+    "reviews": [
+      { "name": "Aria Montgomery", "rating": 5, "date": "2026-05-02", "comment": "Elegant blush tint. Slides effortlessly into tiny pants pockets." }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Active Sport Travel Duffle",
+    "category": "Travel Bags",
+    "brand": "SportX",
+    "price": 31000,
+    "discount": 15,
+    "rating": 4.5,
+    "stock": 25,
+    "material": "Ballistic Nylon",
+    "color": "Cobalt Blue",
+    "isFeatured": true,
+    "isTopPick": false,
+    "isTopSelling": false,
+    "soldCount": 112,
+    "createdAt": "2026-05-28",
+    "images": [
+      "https://images.unsplash.com/photo-1547949003-9792a18a2601?q=80&w=600",
+      "https://images.unsplash.com/photo-1608541737042-87a12275d313?q=80&w=600"
+    ],
+    "description": "Reliable multi-functional fitness and express transit gear bag. Fabricated using hyper-resilient 1680D ballistic nylon threading.",
+    "specifications": {
+      "Dimensions": "18.5\" W x 10\" H x 9\" D",
+      "Weight": "1.7 lbs",
+      "Shell": "Tear-resistant ballistic weavings",
+      "Waterproofing": "IPX4 Rain-splash protected base"
+    },
+    "reviews": [
+      { "name": "Lukas Novak", "rating": 4.5, "date": "2026-05-29", "comment": "Extremely rugged, zippers are industrial strength." }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Heritage Compact Trifold Wallet",
+    "category": "Wallets",
+    "brand": "Atelier",
+    "price": 24000,
+    "discount": 10,
+    "rating": 4.8,
+    "stock": 15,
+    "material": "Full-grain Leather",
+    "color": "Saddle Tan",
+    "isFeatured": false,
+    "isTopPick": true,
+    "isTopSelling": true,
+    "soldCount": 220,
+    "createdAt": "2026-04-05",
+    "images": [
+      "https://images.unsplash.com/photo-1508296695146-257a814070b4?q=80&w=600",
+      "https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=600"
+    ],
+    "description": "Traditional leather art in a compact layout. Folds neatly to hold cards, notes, ID, and coins. Ages beautifully with deep natural patina.",
+    "specifications": {
+      "Dimensions": "3.5\" W x 4.2\" H x 0.6\" D",
+      "Weight": "0.22 lbs",
+      "Card Slots": "6 snug slots",
+      "ID Window": "1 clear quickview window"
+    },
+    "reviews": [
+      { "name": "Regina Hall", "rating": 4.8, "date": "2026-04-12", "comment": "Softened up into a gorgeous dark golden honey color within weeks." }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Classic Straw Leather Tote",
+    "category": "Tote Bags",
+    "brand": "EcoWeave",
+    "price": 35000,
+    "discount": 0,
+    "rating": 4.4,
+    "stock": 12,
+    "material": "Straw & Leather",
+    "color": "Natural Straw",
+    "isFeatured": false,
+    "isTopPick": false,
+    "isTopSelling": false,
+    "soldCount": 45,
+    "createdAt": "2026-05-02",
+    "images": [
+      "https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?q=80&w=600",
+      "https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=600"
+    ],
+    "description": "Hand-crafted from durable wild elephant grass stalks tied with high-gauge double oil-finished leather handles.",
+    "specifications": {
+      "Dimensions": "16\" W x 12\" H x 6.5\" D",
+      "Weight": "1.2 lbs",
+      "Base Support": "Thick premium leather bottom patch",
+      "Craft Process": "100% Hand-woven straw body"
+    },
+    "reviews": []
+  },
+  {
+    "id": 12,
+    "name": "Aero Minimalist Laptop Sleeve",
+    "category": "Laptop Bags",
+    "brand": "Nomad",
+    "price": 18500,
+    "discount": 20,
+    "rating": 4.6,
+    "stock": 30,
+    "material": "Neoprene & Wool",
+    "color": "Melange Grey",
+    "isFeatured": true,
+    "isTopPick": false,
+    "isTopSelling": false,
+    "soldCount": 160,
+    "createdAt": "2026-05-25",
+    "images": [
+      "https://images.unsplash.com/photo-1600857062241-98e5dba7f214?q=80&w=600",
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600"
+    ],
+    "description": "Sleek magnetic envelope design combining high-density memory foam bumpers with felted wool outer panels.",
+    "specifications": {
+      "Dimensions": "14.2\" W x 10\" H x 0.4\" D",
+      "Weight": "0.4 lbs",
+      "Screen Fit": "Optimized for 13.6-14.2\" laptops",
+      "Lock Style": "Seamless mag-snap flap"
+    },
+    "reviews": []
+  },
+  {
+    "id": 13,
+    "name": "Metropolitan Leather Backpack",
+    "category": "Backpacks",
+    "brand": "Atelier",
+    "price": 59000,
+    "discount": 0,
+    "rating": 4.9,
+    "stock": 10,
+    "material": "Sebago Leather",
+    "color": "Burgundy",
+    "isFeatured": true,
+    "isTopPick": true,
+    "isTopSelling": true,
+    "soldCount": 180,
+    "createdAt": "2026-02-28",
+    "images": [
+      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600",
+      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=600"
+    ],
+    "description": "Unveiling unmatched city style. A high-concept leather structured shell with side secret pockets and bespoke satin-twill inner lining.",
+    "specifications": {
+      "Dimensions": "11.5\" W x 16\" H x 5\" D",
+      "Weight": "2.4 lbs",
+      "Hardware": "Brushed nickel metal locks",
+      "Rear Security": "Anti-theft zip cash holder"
+    },
+    "reviews": [
+      { "name": "Gavin Reed", "rating": 5, "date": "2026-04-18", "comment": "Utterly exceptional! Best aesthetic piece I own. Perfect leather luster." }
+    ]
+  },
+  {
+    "id": 14,
+    "name": "Structured Croc Clutch",
+    "category": "Clutches",
+    "brand": "Atelier",
+    "price": 45000,
+    "discount": 15,
+    "rating": 4.7,
+    "stock": 14,
+    "material": "Croc Embossed Leather",
+    "color": "Maroon",
+    "isFeatured": true,
+    "isTopPick": false,
+    "isTopSelling": false,
+    "soldCount": 52,
+    "createdAt": "2026-04-20",
+    "images": [
+      "https://images.unsplash.com/photo-1566150905458-1bf1fc15a6a0?q=80&w=600",
+      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=600"
+    ],
+    "description": "Distinctive crocodile embossing patterns combined with structured rectangular clutch profiles for red-carpet occasions.",
+    "specifications": {
+      "Dimensions": "10\" W x 5.5\" H x 1.75\" D",
+      "Weight": "0.7 lbs",
+      "Lining": "Burgundy satin sheet",
+      "Interior Pocket": "1 zipped wall section"
+    },
+    "reviews": []
+  },
+  {
+    "id": 15,
+    "name": "Hand-braided Leather Keychain",
+    "category": "Accessories",
+    "brand": "Atelier",
+    "price": 11000,
+    "discount": 0,
+    "rating": 4.9,
+    "stock": 60,
+    "material": "Napa Leather",
+    "color": "Mustard Gold",
+    "isFeatured": false,
+    "isTopPick": false,
+    "isTopSelling": false,
+    "soldCount": 340,
+    "createdAt": "2026-03-15",
+    "images": [
+      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=600",
+      "https://images.unsplash.com/photo-1508296695146-257a814070b4?q=80&w=600"
+    ],
+    "description": "Crafted from excess luxury leather fibers. Features resilient golden clip snaps and an elegant braided key security loop.",
+    "specifications": {
+      "Dimensions": "4.5\" L x 0.75\" W",
+      "Weight": "0.1 lbs",
+      "Materials": "Brass and Napa Leather scraps",
+      "Ring Diameter": "1.2 inches"
+    },
+    "reviews": []
+  }
+]
