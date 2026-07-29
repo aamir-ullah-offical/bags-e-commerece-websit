@@ -49,9 +49,10 @@ const ProductCard = memo(function ProductCard({ product, onQuickView }) {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { showToast }                    = useToast();
 
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [heartPop,  setHeartPop]  = useState(false);
-  const [addedPop,  setAddedPop]  = useState(false);
+  const [imgLoaded,  setImgLoaded]  = useState(false);
+  const [img1Loaded, setImg1Loaded] = useState(false);
+  const [heartPop,   setHeartPop]   = useState(false);
+  const [addedPop,   setAddedPop]   = useState(false);
   const heartTimer = useRef(null);
   const addedTimer = useRef(null);
 
@@ -68,9 +69,10 @@ const ProductCard = memo(function ProductCard({ product, onQuickView }) {
   const isSaved  = isInWishlist(id);
   const isOOS    = (product.stock ?? 1) <= 0;
   const isLow    = !isOOS && (product.stock ?? 99) <= 3;
-  const img0     = product.images?.[0] ?? "";
-  const img1     = product.images?.[1] ?? "";
-  const hasDual  = img1 && img1 !== img0;
+  const img0      = product.images?.[0] ?? "";
+  const img1      = product.images?.[1] ?? "";
+  const hasDual   = img1 && img1 !== img0;
+  const swapActive = hasDual && img1Loaded;
   const reviews  = product.reviews?.length ?? product.reviewCount ?? 0;
 
   const handleImgLoad = useCallback(() => setImgLoaded(true), []);
@@ -119,14 +121,16 @@ const ProductCard = memo(function ProductCard({ product, onQuickView }) {
               referrerPolicy="no-referrer" loading="lazy" decoding="async"
               onLoad={handleImgLoad}
               className={`absolute inset-0 w-full h-full object-cover transition-all duration-600
-                ${hasDual ? "group-hover:opacity-0 group-hover:scale-[1.04]" : "group-hover:scale-[1.06]"}
+                ${swapActive ? "group-hover:opacity-0 group-hover:scale-[1.04]" : "group-hover:scale-[1.06]"}
                 ${imgLoaded ? "opacity-100" : "opacity-0"}`}
             />
             {!imgLoaded && <div className="absolute inset-0 skeleton skeleton-img" />}
             {hasDual && (
               <img
                 src={img1} alt="" referrerPolicy="no-referrer" loading="lazy" decoding="async" aria-hidden
-                className="absolute inset-0 w-full h-full object-cover transition-all duration-600 opacity-0 scale-[1.04] group-hover:opacity-100 group-hover:scale-100"
+                onLoad={() => setImg1Loaded(true)}
+                onError={() => setImg1Loaded(false)}
+                className={`absolute inset-0 w-full h-full object-cover transition-all duration-600 opacity-0 scale-[1.04] ${swapActive ? "group-hover:opacity-100 group-hover:scale-100" : ""}`}
               />
             )}
           </>

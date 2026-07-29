@@ -18,109 +18,15 @@ const DB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/bags_ecomme
 
 const daysAgo = (n) => new Date(Date.now() - n * 86_400_000);
 
-// ─── Image Pools ──────────────────────────────────────────────────────────────
-// Curated Unsplash photo IDs per category — each ID maps to a genuine bag photo.
-// pickImages(pool, count) shuffles the pool and returns `count` unique full URLs.
+// ─── Image Generation ─────────────────────────────────────────────────────────
+// picsum.photos delivers deterministic, always-loading, high-quality stock photos.
+// Each product slug produces unique images; index suffix gives distinct hover pair.
+// Replace with real product photos via the admin dashboard (Cloudinary upload).
 
-const IMG_BASE = "https://images.unsplash.com/photo-";
-const IMG_OPTS = "?auto=format&fit=crop&w=800&q=80";
-
-const imagePools = {
-  "Tote Bags": [
-    "1548036328-c9fa89d128fa", // beige structured tote on marble
-    "1584917865442-de89df76afd3", // caramel leather tote
-    "1590736969955-71cc94901144", // tan tote close-up
-    "1566150905458-1bf1fc113f0d", // brown leather tote lifestyle
-    "1591561954555-607968733893", // olive canvas tote
-    "1553062407-98eeb64c6a62", // classic tan structured tote
-    "1543087903-1ac9cc0b0ef3", // cream leather tote flat lay
-    "1618354691373-d851c5c3a990", // camel tote overhead
-  ],
-  "Shoulder Bags": [
-    "1575032617751-6ddec2089882", // black shoulder bag city
-    "1584917865442-de89df76afd3", // cognac shoulder bag
-    "1590736969955-71cc94901144", // shoulder bag close texture
-    "1548036328-c9fa89d128fa", // structured shoulder bag
-    "1566150905458-1bf1fc113f0d", // everyday shoulder bag brown
-    "1618354691373-d851c5c3a990", // camel shoulder lifestyle
-    "1584917865442-de89df76afd3", // chestnut pebbled
-    "1543087903-1ac9cc0b0ef3", // ivory white shoulder
-  ],
-  "Crossbody Bags": [
-    "1590736969955-71cc94901144", // blush crossbody on stone
-    "1548036328-c9fa89d128fa", // mini crossbody light
-    "1583623025817-d180a2221d0a", // cognac cross-body detail
-    "1566150905458-1bf1fc113f0d", // brown crossbody flat lay
-    "1553062407-98eeb64c6a62", // structured crossbody
-    "1618354691373-d851c5c3a990", // tan mini crossbody
-    "1543087903-1ac9cc0b0ef3", // cream crossbody overhead
-    "1575032617751-6ddec2089882", // black mini crossbody
-  ],
-  "Clutch Bags": [
-    "1627723552786-cebfb8b1c3e4", // champagne evening clutch
-    "1566150905458-1bf1fc113f0d", // velvet envelope clutch
-    "1553062407-98eeb64c6a62", // gold frame clutch
-    "1590736969955-71cc94901144", // satin clutch party
-    "1543087903-1ac9cc0b0ef3", // ivory beaded clutch
-    "1618354691373-d851c5c3a990", // midnight envelope on silk
-    "1575032617751-6ddec2089882", // black leather clutch
-    "1583623025817-d180a2221d0a", // cognac frame clutch
-  ],
-  Backpacks: [
-    "1553062407-98eeb64c6a62", // olive canvas backpack
-    "1618354691373-d851c5c3a990", // camel leather backpack
-    "1566150905458-1bf1fc113f0d", // brown leather slim backpack
-    "1543087903-1ac9cc0b0ef3", // cream structured backpack
-    "1584917865442-de89df76afd3", // cognac backpack lifestyle
-    "1590736969955-71cc94901144", // grey canvas backpack detail
-    "1575032617751-6ddec2089882", // black commuter backpack
-    "1548036328-c9fa89d128fa", // tan laptop backpack
-  ],
-  "Satchel Bags": [
-    "1553062407-98eeb64c6a62", // cognac veg-tanned satchel
-    "1566150905458-1bf1fc113f0d", // dark leather satchel
-    "1618354691373-d851c5c3a990", // camel heritage satchel
-    "1584917865442-de89df76afd3", // tan satchel flat lay
-    "1548036328-c9fa89d128fa", // structured satchel on desk
-    "1590736969955-71cc94901144", // chestnut double-buckle satchel
-    "1543087903-1ac9cc0b0ef3", // ivory doctor satchel
-    "1583623025817-d180a2221d0a", // cognac patina satchel
-  ],
-  "Bucket Bags": [
-    "1566150905458-1bf1fc113f0d", // lavender suede bucket
-    "1583623025817-d180a2221d0a", // camel napa bucket
-    "1575032617751-6ddec2089882", // black bucket drawstring
-    "1553062407-98eeb64c6a62", // tan drawstring bucket
-    "1618354691373-d851c5c3a990", // camel leather bucket overhead
-    "1590736969955-71cc94901144", // suede bucket close-up
-    "1548036328-c9fa89d128fa", // structured bucket natural
-    "1584917865442-de89df76afd3", // cognac bucket lifestyle
-  ],
-  Wallets: [
-    "1627123424574-724758594e93", // ivory card wallet
-    "1578898886250-862a7f38ad27", // dark brown bifold
-    "1553062407-98eeb64c6a62", // cognac slim wallet
-    "1566150905458-1bf1fc113f0d", // tan long wallet
-    "1618354691373-d851c5c3a990", // camel zip wallet
-    "1590736969955-71cc94901144", // pebbled leather wallet
-    "1543087903-1ac9cc0b0ef3", // white lambskin wallet
-    "1584917865442-de89df76afd3", // full-grain bifold
-  ],
-};
-
-/**
- * Return `count` unique image URLs randomly sampled from the named category pool.
- * Falls back to the tote pool if the category isn't mapped.
- */
-function pickImages(category, count = 2) {
-  const pool = imagePools[category] ?? imagePools["Tote Bags"];
-  // Fisher-Yates shuffle on a copy
-  const shuffled = [...pool];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled.slice(0, count).map((id) => `${IMG_BASE}${id}${IMG_OPTS}`);
+function pickImages(productSlug, count = 2) {
+  return Array.from({ length: count }, (_, i) =>
+    `https://picsum.photos/seed/msac-${productSlug}-${i}/800/800`
+  );
 }
 
 // ─── Categories ───────────────────────────────────────────────────────────────
@@ -160,7 +66,7 @@ const productData = [
     isTopPick: true,
     isTopSelling: false,
     description: "A Parisian icon reimagined in buttery full-grain caramel leather. Spacious enough for a full day in the city, with a magnetic snap closure and gold-toned hardware that only gets better with age.",
-    images: pickImages("Tote Bags"),
+    images: pickImages("parisian-tote-luxe"),
     tags: ["tote", "leather", "luxury", "paris"],
     specifications: [
       { key: "Material",   value: "Full-Grain Italian Leather" },
@@ -183,7 +89,7 @@ const productData = [
     isTopPick: false,
     isTopSelling: true,
     description: "The everyday workhorse. Heavy-duty waxed canvas with vegetable-tanned leather handles — develops a gorgeous patina over years of use. Internal laptop sleeve fits up to 15 inches.",
-    images: pickImages("Tote Bags"),
+    images: pickImages("canvas-market-tote"),
     tags: ["tote", "canvas", "everyday", "casual"],
     specifications: [
       { key: "Material",   value: "12 oz Waxed Canvas + Vegetable-Tanned Leather" },
@@ -208,7 +114,7 @@ const productData = [
     isTopPick: false,
     isTopSelling: true,
     description: "Sleek and sophisticated, the Milano is crafted from smooth Italian calfskin with a single structured compartment and a hidden back zip. Timeless in black — works from boardroom to dinner.",
-    images: pickImages("Shoulder Bags"),
+    images: pickImages("milano-shoulder-bag"),
     tags: ["shoulder", "leather", "black", "office"],
     specifications: [
       { key: "Material",   value: "Smooth Italian Calfskin" },
@@ -231,7 +137,7 @@ const productData = [
     isTopPick: true,
     isTopSelling: false,
     description: "A relaxed crescent silhouette in rich pebbled chestnut leather. The hobo drapes naturally over the shoulder with a single zip compartment and two slip pockets inside.",
-    images: pickImages("Shoulder Bags"),
+    images: pickImages("sedona-hobo-shoulder"),
     tags: ["shoulder", "hobo", "pebbled", "chestnut"],
     specifications: [
       { key: "Material",   value: "Pebbled Cowhide Leather" },
@@ -256,7 +162,7 @@ const productData = [
     isTopPick: true,
     isTopSelling: false,
     description: "Light, compact, and endlessly versatile. The Riviera's dusty blush pebbled leather and gold chain strap make it perfect from morning coffee to evening cocktails.",
-    images: pickImages("Crossbody Bags"),
+    images: pickImages("riviera-crossbody"),
     tags: ["crossbody", "blush", "chain", "mini"],
     specifications: [
       { key: "Material",   value: "Pebbled Leather" },
@@ -279,7 +185,7 @@ const productData = [
     isTopPick: false,
     isTopSelling: true,
     description: "The Nomad packs phone, cards, and keys into a sleek smooth-leather silhouette with a satisfying turn-lock closure. Available with a long adjustable strap for crossbody or shoulder carry.",
-    images: pickImages("Crossbody Bags"),
+    images: pickImages("nomad-mini-crossbody"),
     tags: ["crossbody", "mini", "cognac", "turnlock"],
     specifications: [
       { key: "Material",   value: "Smooth Nappa Leather" },
@@ -304,7 +210,7 @@ const productData = [
     isTopPick: false,
     isTopSelling: true,
     description: "Made for evenings that deserve to be remembered. The Soirée's champagne satin body catches candlelight beautifully, finished with a gold frame clasp and detachable wrist chain.",
-    images: pickImages("Clutch Bags"),
+    images: pickImages("soiree-clutch"),
     tags: ["clutch", "satin", "evening", "wedding"],
     specifications: [
       { key: "Material",   value: "Duchess Satin + Gold-plate Frame" },
@@ -327,7 +233,7 @@ const productData = [
     isTopPick: true,
     isTopSelling: false,
     description: "Envelope clutch in sumptuous midnight blue velvet. The magnetic fold-over closure opens to a satin-lined interior with a built-in card slot. Perfect for black-tie evenings.",
-    images: pickImages("Clutch Bags"),
+    images: pickImages("velvet-evening-envelope"),
     tags: ["clutch", "velvet", "envelope", "evening"],
     specifications: [
       { key: "Material",   value: "Crushed Velvet + Satin Lining" },
@@ -352,7 +258,7 @@ const productData = [
     isTopPick: false,
     isTopSelling: true,
     description: "Built for the city explorer. Water-resistant waxed canvas body with full-grain leather trim — features a padded 16\" laptop compartment, a front organiser pocket, and a hidden back-panel pocket.",
-    images: pickImages("Backpacks"),
+    images: pickImages("urban-explorer-backpack"),
     tags: ["backpack", "canvas", "travel", "laptop"],
     specifications: [
       { key: "Material",   value: "Waxed Canvas + Full-Grain Leather trim" },
@@ -375,7 +281,7 @@ const productData = [
     isTopPick: true,
     isTopSelling: false,
     description: "The professional's daily carry. Slim-profile full-grain leather with a padded 15\" laptop sleeve, a trolley pass-through, and a top grab handle. It looks as sharp in a boardroom as it does on a commuter train.",
-    images: pickImages("Backpacks"),
+    images: pickImages("commuter-slim-backpack"),
     tags: ["backpack", "leather", "commuter", "office"],
     specifications: [
       { key: "Material",    value: "Full-Grain Cowhide Leather" },
@@ -400,7 +306,7 @@ const productData = [
     isTopPick: true,
     isTopSelling: false,
     description: "Our flagship piece. Hand-stitched in vegetable-tanned leather at a heritage Italian workshop, this satchel deepens in colour and character with every year of use. A true lifetime bag.",
-    images: pickImages("Satchel Bags"),
+    images: pickImages("heritage-satchel"),
     tags: ["satchel", "heritage", "veg-tanned", "handmade"],
     specifications: [
       { key: "Material",    value: "Vegetable-Tanned Full-Grain Leather" },
@@ -425,7 +331,7 @@ const productData = [
     isTopPick: false,
     isTopSelling: true,
     description: "Soft suede bucket bag in a dreamy lavender hue. The drawstring closure cinches into a satisfying slouch, and the detachable interior pouch keeps essentials organised.",
-    images: pickImages("Bucket Bags"),
+    images: pickImages("provence-bucket-bag"),
     tags: ["bucket", "suede", "summer", "lavender"],
     specifications: [
       { key: "Material", value: "Italian Suede" },
@@ -447,7 +353,7 @@ const productData = [
     isTopPick: false,
     isTopSelling: false,
     description: "Understated luxury in buttery napa leather. The drawstring bucket silhouette is effortlessly cool with a long shoulder strap for hands-free carry.",
-    images: pickImages("Bucket Bags"),
+    images: pickImages("napa-leather-bucket"),
     tags: ["bucket", "napa", "luxury", "camel"],
     specifications: [
       { key: "Material",   value: "Napa Calf Leather" },
@@ -472,7 +378,7 @@ const productData = [
     isTopPick: true,
     isTopSelling: false,
     description: "Slim and sophisticated. This compact card wallet in buttery lambskin holds up to 6 cards with a central cash slip — everything you need, nothing you don't.",
-    images: pickImages("Wallets"),
+    images: pickImages("monaco-card-wallet"),
     tags: ["wallet", "slim", "card", "lambskin"],
     specifications: [
       { key: "Material",   value: "Lambskin Leather" },
@@ -494,7 +400,7 @@ const productData = [
     isTopPick: false,
     isTopSelling: true,
     description: "The wallet that never goes out of style. Full-grain cowhide in rich dark brown with 8 card slots, 2 cash compartments, and an ID window.",
-    images: pickImages("Wallets"),
+    images: pickImages("classic-bifold-wallet"),
     tags: ["wallet", "bifold", "classic", "mens"],
     specifications: [
       { key: "Material",   value: "Full-Grain Cowhide" },
@@ -511,7 +417,7 @@ const banners = [
     title: "New Arrivals",
     subtitle: "Spring/Summer 2025 Collection",
     discountText: "Up to 30% Off",
-    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1920&q=80",
+    image: "https://picsum.photos/seed/msac-banner-1/1920/800",
     ctaText: "Shop Now",
     ctaLink: "/shop",
     badge: "New",
@@ -522,7 +428,7 @@ const banners = [
     title: "Luxury Totes",
     subtitle: "Crafted for the Modern Woman",
     discountText: "Free Shipping on Orders Over Rs. 20,000",
-    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=1920&q=80",
+    image: "https://picsum.photos/seed/msac-banner-2/1920/800",
     ctaText: "Explore",
     ctaLink: "/shop?category=Tote+Bags",
     isActive: true,
@@ -532,7 +438,7 @@ const banners = [
     title: "Heritage Collection",
     subtitle: "Pieces Built to Last a Lifetime",
     discountText: "Complimentary Gift Wrap",
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=1920&q=80",
+    image: "https://picsum.photos/seed/msac-banner-3/1920/800",
     ctaText: "Discover",
     ctaLink: "/shop?category=Satchel+Bags",
     badge: "Exclusive",

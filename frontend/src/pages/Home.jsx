@@ -169,16 +169,19 @@ function FeaturedCard({ product, onQuickView }) {
   const { toggleWishlist, isInWishlist } = useWishlist();
   const { showToast }                    = useToast();
 
-  const id       = product._id || product.id;
-  const price    = product.price    ?? 0;
-  const discount = product.discount ?? 0;
-  const sale     = calcSalePrice(price, discount);
-  const isSaved  = isInWishlist(id);
-  const isOOS    = (product.stock ?? 1) <= 0;
-  const img0     = product.images?.[0] ?? "";
-  const img1     = product.images?.[1] ?? "";
-  const hasDual  = img1 && img1 !== img0;
-  const reviews  = product.reviews?.length ?? product.reviewCount ?? 0;
+  const [img1Loaded, setImg1Loaded] = useState(false);
+
+  const id        = product._id || product.id;
+  const price     = product.price    ?? 0;
+  const discount  = product.discount ?? 0;
+  const sale      = calcSalePrice(price, discount);
+  const isSaved   = isInWishlist(id);
+  const isOOS     = (product.stock ?? 1) <= 0;
+  const img0      = product.images?.[0] ?? "";
+  const img1      = product.images?.[1] ?? "";
+  const hasDual   = img1 && img1 !== img0;
+  const swapActive = hasDual && img1Loaded;
+  const reviews   = product.reviews?.length ?? product.reviewCount ?? 0;
 
   const doCart = (e) => {
     e.preventDefault(); e.stopPropagation();
@@ -203,10 +206,12 @@ function FeaturedCard({ product, onQuickView }) {
         {img0 ? (
           <>
             <img src={img0} alt={product.name ?? ""} referrerPolicy="no-referrer" loading="lazy" decoding="async"
-              className={`absolute inset-0 w-full h-full object-cover transition-all duration-650 ${hasDual ? "group-hover:opacity-0 group-hover:scale-[1.03]" : "group-hover:scale-[1.06]"}`} />
+              className={`absolute inset-0 w-full h-full object-cover transition-all duration-650 ${swapActive ? "group-hover:opacity-0 group-hover:scale-[1.03]" : "group-hover:scale-[1.06]"}`} />
             {hasDual && (
               <img src={img1} alt="" referrerPolicy="no-referrer" loading="lazy" decoding="async" aria-hidden
-                className="absolute inset-0 w-full h-full object-cover opacity-0 scale-[1.03] group-hover:opacity-100 group-hover:scale-100 transition-all duration-650" />
+                onLoad={() => setImg1Loaded(true)}
+                onError={() => setImg1Loaded(false)}
+                className={`absolute inset-0 w-full h-full object-cover opacity-0 scale-[1.03] transition-all duration-650 ${swapActive ? "group-hover:opacity-100 group-hover:scale-100" : ""}`} />
             )}
           </>
         ) : (

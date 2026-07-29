@@ -20,6 +20,7 @@ function makeStorage(folder, transformation) {
     params: async (req, file) => ({
       folder: `maison-sac/${folder}`,
       allowed_formats: ["jpg", "jpeg", "png", "gif", "webp", "avif"],
+      format: "webp",          // convert and store as WebP at upload time
       transformation,
       resource_type: "image",
     }),
@@ -28,23 +29,19 @@ function makeStorage(folder, transformation) {
 
 // ── Preset storages ────────────────────────────────────────────────────────────
 const productStorage = makeStorage("products", [
-  { width: 1200, crop: "limit" },
-  { quality: "auto", fetch_format: "webp" },
+  { width: 1200, crop: "limit", quality: "auto" },
 ]);
 
 const avatarStorage = makeStorage("avatars", [
-  { width: 400, height: 400, crop: "fill", gravity: "face" },
-  { quality: "auto", fetch_format: "webp" },
+  { width: 400, height: 400, crop: "fill", gravity: "face", quality: "auto" },
 ]);
 
 const bannerStorage = makeStorage("banners", [
-  { width: 1920, height: 800, crop: "fill" },
-  { quality: "auto", fetch_format: "webp" },
+  { width: 1920, height: 800, crop: "fill", quality: "auto" },
 ]);
 
 const generalStorage = makeStorage("general", [
-  { width: 2000, crop: "limit" },
-  { quality: "auto", fetch_format: "webp" },
+  { width: 2000, crop: "limit", quality: "auto" },
 ]);
 
 // ── Multer instances ───────────────────────────────────────────────────────────
