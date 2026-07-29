@@ -1,0 +1,31 @@
+{
+  "name": "bags-ecommerce-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@vitejs/plugin-react": "^5.0.4",
+    "axios": "^1.16.1",
+    "lucide-react": "^0.546.0",
+    "motion": "^12.23.24",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "react-router-dom": "^7.16.0",
+    "recharts": "^3.8.1",
+    "vite": "^6.2.3"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "tailwindcss": "^4.1.14"
+  }
+}

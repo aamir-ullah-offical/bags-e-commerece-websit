@@ -1,8 +1,81 @@
+# ─── Dependencies ─────────────────────────────────────────────────────────────
 node_modules/
-build/
-dist/
-coverage/
-.DS_Store
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# ─── Environment & Secrets ────────────────────────────────────────────────────
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# .env.example files are safe reference templates — kept in repo, never have real secrets
+# backend/.env.example was intentionally removed; frontend/.env.example is tracked
+
+# ─── Frontend Build Output ────────────────────────────────────────────────────
+frontend/dist/
+frontend/.vite/
+frontend/dist-ssr/
+
+# ─── Backend Runtime ──────────────────────────────────────────────────────────
+backend/uploads/
+backend/*.log
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+logs/
 *.log
-.env*
-!.env.example
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── Testing & Coverage ───────────────────────────────────────────────────────
+coverage/
+*.lcov
+.nyc_output/
+
+# ─── TypeScript (if added later) ──────────────────────────────────────────────
+*.tsbuildinfo
+
+# ─── Vercel ───────────────────────────────────────────────────────────────────
+.vercel/
+
+# ─── OS Generated ─────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ─── Editors & IDEs ───────────────────────────────────────────────────────────
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+*~
+
+# ─── Temporary / Scratch ──────────────────────────────────────────────────────
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+
+# ─── MongoDB local data (if running mongod with --dbpath here) ────────────────
+data/
+*.pid
+
+# ─── Package manager locks (keep package-lock.json, ignore others) ────────────
+yarn.lock
+pnpm-lock.yaml

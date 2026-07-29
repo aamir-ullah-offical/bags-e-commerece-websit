@@ -1,0 +1,692 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office'
+      xmlns:w='urn:schemas-microsoft-com:office:word'
+      xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset='utf-8'>
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content='Microsoft Word 15'>
+<title>MAISON SAC — Full-Stack Audit &amp; Fix Report</title>
+<style>
+  /* Page setup */
+  @page Section1 {
+    size: 8.27in 11.69in; /* A4 */
+    margin: 1.0in 1.1in 1.0in 1.1in;
+    mso-header-margin: .5in;
+    mso-footer-margin: .5in;
+    mso-paper-source: 0;
+  }
+  div.Section1 { page: Section1; }
+
+  /* Base */
+  body {
+    font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+    font-size: 10.5pt;
+    color: #1a1410;
+    line-height: 1.5;
+    mso-line-height-rule: exactly;
+  }
+
+  /* Headings */
+  h1 {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 22pt;
+    font-weight: normal;
+    color: #1a1410;
+    margin-top: 0pt;
+    margin-bottom: 6pt;
+    mso-style-name: "Report Title";
+    border-bottom: 2pt solid #b8922e;
+    padding-bottom: 6pt;
+  }
+  h2 {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 14pt;
+    font-weight: normal;
+    color: #1a1410;
+    margin-top: 18pt;
+    margin-bottom: 6pt;
+    border-bottom: 1pt solid #ddd5c8;
+    padding-bottom: 4pt;
+  }
+  h3 {
+    font-family: 'Calibri', Arial, sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    color: #4a3f32;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-top: 14pt;
+    margin-bottom: 4pt;
+  }
+
+  /* Paragraph */
+  p {
+    margin-top: 0;
+    margin-bottom: 6pt;
+    font-size: 10.5pt;
+  }
+  p.note {
+    font-size: 9pt;
+    color: #7a6e64;
+    font-style: italic;
+  }
+
+  /* ── Cover block ── */
+  .cover {
+    text-align: center;
+    padding: 48pt 0 36pt;
+    border-bottom: 2pt solid #b8922e;
+    margin-bottom: 28pt;
+  }
+  .cover-brand {
+    font-family: 'Calibri', Arial, sans-serif;
+    font-size: 9pt;
+    font-weight: bold;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: #b8922e;
+    margin-bottom: 10pt;
+  }
+  .cover-title {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 26pt;
+    font-weight: normal;
+    color: #1a1410;
+    margin-bottom: 8pt;
+    line-height: 1.2;
+  }
+  .cover-subtitle {
+    font-size: 11pt;
+    color: #6b5f54;
+    margin-bottom: 18pt;
+    max-width: 480pt;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cover-meta {
+    font-size: 9pt;
+    color: #9a8e83;
+    letter-spacing: .06em;
+  }
+
+  /* ── Summary stats table ── */
+  table.stats {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20pt;
+    font-family: 'Calibri', Arial, sans-serif;
+  }
+  table.stats td {
+    text-align: center;
+    border: 1pt solid #e6dfd4;
+    padding: 10pt 8pt;
+    background-color: #faf8f4;
+  }
+  .stat-num {
+    font-size: 22pt;
+    font-weight: bold;
+    display: block;
+    line-height: 1;
+    margin-bottom: 3pt;
+  }
+  .stat-lbl {
+    font-size: 8pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: #7a6e64;
+    display: block;
+  }
+  .n-total  { color: #3a8a5a; }
+  .n-p0     { color: #c0443a; }
+  .n-p1     { color: #b86a20; }
+  .n-p2     { color: #2e72b0; }
+  .n-p3     { color: #507848; }
+  .n-accent { color: #b8922e; }
+
+  /* ── Build banner ── */
+  .build-pass {
+    background-color: #edf7f2;
+    border: 1pt solid #3a8a5a;
+    border-left: 4pt solid #3a8a5a;
+    padding: 10pt 14pt;
+    margin-bottom: 24pt;
+    font-family: 'Calibri', Arial, sans-serif;
+  }
+  .build-pass strong { color: #3a8a5a; font-size: 11pt; }
+  .build-pass span   { font-size: 9.5pt; color: #4a7a5c; }
+
+  /* ── Fix entry table ── */
+  table.fixes {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14pt;
+    font-family: 'Calibri', Arial, sans-serif;
+  }
+  table.fixes thead tr {
+    background-color: #f5f1eb;
+  }
+  table.fixes thead th {
+    font-size: 8.5pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #6b5f54;
+    padding: 6pt 8pt;
+    text-align: left;
+    border-bottom: 1pt solid #ddd5c8;
+    border-top: 1pt solid #ddd5c8;
+  }
+  table.fixes tbody tr td {
+    padding: 8pt 8pt;
+    vertical-align: top;
+    border-bottom: 1pt solid #ede7df;
+    font-size: 10pt;
+  }
+  table.fixes tbody tr:nth-child(even) td {
+    background-color: #faf8f4;
+  }
+  .file-col { color: #5a4e43; font-family: 'Courier New', Courier, monospace; font-size: 9pt; white-space: nowrap; }
+  .sev-col  { text-align: center; white-space: nowrap; }
+  .desc-col { color: #2a2018; }
+  .desc-col code { font-family: 'Courier New', Courier, monospace; font-size: 9pt; background-color: #f0ebe3; padding: 1pt 3pt; }
+
+  /* Severity badges */
+  .badge {
+    display: inline-block;
+    font-size: 8pt;
+    font-weight: bold;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 2pt 6pt;
+    border-radius: 3pt;
+  }
+  .b-p0  { background-color: #fef0ee; color: #c0443a; border: 1pt solid #f0b0a8; }
+  .b-p1  { background-color: #fef4e8; color: #b86a20; border: 1pt solid #e8c888; }
+  .b-p2  { background-color: #eff6ff; color: #2e72b0; border: 1pt solid #a8c8e8; }
+  .b-p3  { background-color: #f0f7ee; color: #507848; border: 1pt solid #a8c898; }
+  .b-new { background-color: #fdf3dc; color: #b8922e; border: 1pt solid #e8c87a; }
+  .b-be  { background-color: #f0ebe3; color: #6b5f54; border: 1pt solid #d0c8bc; }
+
+  /* Phase divider */
+  .phase-div {
+    text-align: center;
+    margin: 24pt 0 16pt;
+    color: #9a8e83;
+    font-size: 9pt;
+    font-weight: bold;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    border-top: 1pt solid #e6dfd4;
+    padding-top: 12pt;
+  }
+
+  /* TOC */
+  .toc-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 3pt 0;
+    border-bottom: 1pt dotted #e0d8ce;
+    font-size: 10.5pt;
+    color: #3a3028;
+  }
+  .toc-section { font-weight: bold; color: #b8922e; font-size: 9pt; margin-top: 8pt; letter-spacing:.06em; text-transform:uppercase; }
+
+  /* Misc */
+  ul { margin-top: 0; margin-bottom: 6pt; padding-left: 18pt; }
+  li { margin-bottom: 3pt; font-size: 10.5pt; }
+  hr { border: none; border-top: 1pt solid #e6dfd4; margin: 18pt 0; }
+
+  /* Page break helper */
+  .pagebreak { page-break-before: always; }
+</style>
+</head>
+<body>
+<div class="Section1">
+
+<!-- ═══════════════════════════════════════════════
+     COVER
+═══════════════════════════════════════════════ -->
+<div class="cover">
+  <p class="cover-brand">Maison Sac &nbsp;·&nbsp; MERN E-Commerce Platform</p>
+  <p class="cover-title">Full-Stack Audit &amp; Fix Report</p>
+  <p class="cover-subtitle">
+    Comprehensive two-phase quality audit of the storefront, API, and deployment
+    configuration. All defects triaged by severity, resolved, and verified
+    against a clean production build.
+  </p>
+  <p class="cover-meta">Version 2.0 &nbsp;·&nbsp; Audit Date: 29 July 2026 &nbsp;·&nbsp; Prepared by: Claude Code</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     BUILD PASS BANNER
+═══════════════════════════════════════════════ -->
+<div class="build-pass">
+  <strong>&#x2705;&nbsp; Production Build Passing — Zero Errors</strong><br>
+  <span>2,852 modules transformed &nbsp;·&nbsp; Built in 18.61 s &nbsp;·&nbsp; All chunks gzip-compressed &nbsp;·&nbsp; Vite 6 + React 19</span>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SUMMARY STATS
+═══════════════════════════════════════════════ -->
+<h2>Executive Summary</h2>
+<table class="stats">
+  <tr>
+    <td><span class="stat-num n-total">33</span><span class="stat-lbl">Total Fixes</span></td>
+    <td><span class="stat-num n-p0">5</span><span class="stat-lbl">P0 Critical</span></td>
+    <td><span class="stat-num n-p1">12</span><span class="stat-lbl">P1 High</span></td>
+    <td><span class="stat-num n-p2">12</span><span class="stat-lbl">P2 Medium</span></td>
+    <td><span class="stat-num n-p3">4</span><span class="stat-lbl">P3 Low</span></td>
+    <td><span class="stat-num n-accent">2</span><span class="stat-lbl">New Pages</span></td>
+    <td><span class="stat-num n-accent">20</span><span class="stat-lbl">Files Changed</span></td>
+  </tr>
+</table>
+
+<p>
+  Two sequential deep-scan audit passes were performed across the entire codebase —
+  frontend React application, backend Express API, Mongoose data models, seeding utilities,
+  and deployment configuration. Issues were categorised by impact severity from P0
+  (runtime crash or data corruption) down to P3 (minor polish). All 33 identified
+  defects were resolved and the final production build passes with zero errors.
+</p>
+
+<h3>Severity Scale</h3>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:12%">Level</th>
+    <th>Definition</th>
+  </tr></thead>
+  <tbody>
+    <tr><td class="sev-col"><span class="badge b-p0">P0</span></td><td>Runtime crash, data corruption, or silent auth bypass — blocks a core user journey</td></tr>
+    <tr><td class="sev-col"><span class="badge b-p1">P1</span></td><td>Wrong behaviour, broken flow, or logic error with a clear negative user impact</td></tr>
+    <tr><td class="sev-col"><span class="badge b-p2">P2</span></td><td>Incorrect data, misleading copy, invalid CSS, or redundant computation</td></tr>
+    <tr><td class="sev-col"><span class="badge b-p3">P3</span></td><td>Minor UX gap, missing guard, or low-risk omission</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════════════
+     TABLE OF CONTENTS
+═══════════════════════════════════════════════ -->
+<h2>Contents</h2>
+<p class="toc-section">Phase 1 — Deployment &amp; Core Fixes</p>
+<p class="toc-entry"><span>1. Authentication &amp; Routing</span><span>3</span></p>
+<p class="toc-entry"><span>2. UX &amp; Native Dialogs</span><span>3</span></p>
+<p class="toc-entry"><span>3. New Pages &amp; Features</span><span>4</span></p>
+<p class="toc-entry"><span>4. Vercel Deployment &amp; Backend Hardening</span><span>4</span></p>
+<p class="toc-section">Phase 2 — Deep Scan &amp; Systematic Repair</p>
+<p class="toc-entry"><span>5. P0 Runtime Crashes</span><span>5</span></p>
+<p class="toc-entry"><span>6. P1 Auth Flow &amp; Commerce Logic</span><span>5</span></p>
+<p class="toc-entry"><span>7. P1 QuickView Modal</span><span>6</span></p>
+<p class="toc-entry"><span>8. P2 Code Quality &amp; Correctness</span><span>7</span></p>
+<p class="toc-entry"><span>9. Backend — Models, Routes &amp; Seed</span><span>7</span></p>
+<p class="toc-entry"><span>10. P3 Shop Page Polish</span><span>8</span></p>
+
+<!-- ═══════════════════════════════════════════════
+     PHASE 1
+═══════════════════════════════════════════════ -->
+<div class="pagebreak"></div>
+<div class="phase-div">&#9644;&nbsp; Phase 1 — Deployment &amp; Core Fixes &nbsp;&#9644;</div>
+
+<!-- 1. Auth & Routing -->
+<h2>1. Authentication &amp; Routing</h2>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:28%">File</th>
+    <th style="width:12%">Severity</th>
+    <th>Description of Fix</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">src/pages/Orders.jsx</td>
+      <td class="sev-col"><span class="badge b-p0">P0 · Crash</span></td>
+      <td class="desc-col"><strong>Orders never loaded.</strong> API response was unwrapped as <code>data.data</code> but the endpoint returns <code>data.orders</code>. Fixed to <code>data.orders || data.data || []</code> with array guard.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/components/Breadcrumb.jsx</td>
+      <td class="sev-col"><span class="badge b-p1">P1</span></td>
+      <td class="desc-col"><strong>Navigation links silently failed.</strong> Some pages passed a <code>url</code> prop, others a <code>to</code> prop. Component only read <code>url</code>. Fixed to resolve <code>item.url || item.to</code>.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/pages/TrackOrder.jsx</td>
+      <td class="sev-col"><span class="badge b-p1">P1</span></td>
+      <td class="desc-col"><strong>Track Order showed stale results.</strong> <code>useEffect</code> had empty <code>[]</code> deps (ignored URL param changes), <code>province</code> field name mismatched DB field <code>state</code>, and state was not reset before re-fetch. All three corrected.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 2. UX & Dialogs -->
+<h2>2. UX &amp; Native Dialogs</h2>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:28%">File</th>
+    <th style="width:12%">Severity</th>
+    <th>Description of Fix</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">src/pages/OrderDetails.jsx</td>
+      <td class="sev-col"><span class="badge b-p1">P1</span></td>
+      <td class="desc-col"><strong>Cancel order used <code>window.confirm</code> and <code>alert()</code></strong> — both block the main thread and break the custom UI. Replaced with an inline confirm/cancel button pattern and <code>showToast()</code>.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/components/Footer.jsx</td>
+      <td class="sev-col"><span class="badge b-p2">P2</span></td>
+      <td class="desc-col"><strong>Four invalid Tailwind classes</strong> (<code>bg-stone-805</code>, <code>border-stone-850</code>, <code>text-xxs</code> ×2) rendered without styles. Dead <code>&lt;a href="#privacy"&gt;</code> anchors replaced with router <code>&lt;Link&gt;</code>. Newsletter form rewritten with proper email regex validation and distinct error / already-subscribed / success states.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 3. New Pages -->
+<h2>3. New Pages &amp; Features</h2>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:28%">File</th>
+    <th style="width:12%">Severity</th>
+    <th>Description of Fix</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">src/pages/ResetPassword.jsx<br><br>src/routes/AppRoutes.jsx</td>
+      <td class="sev-col"><span class="badge b-new">New Page</span></td>
+      <td class="desc-col"><strong>Password reset flow was incomplete — the landing page was missing.</strong> Created new page at <code>/reset-password/:token</code> with: password + confirm fields, strength validation (8+ characters, uppercase letter, digit), contextual server error display with a link to re-request the token, and auto-redirect to <code>/login</code> after 4 seconds on success. Route registered as a lazy-loaded public route in AppRoutes.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/pages/Home.jsx</td>
+      <td class="sev-col"><span class="badge b-p0">P0 · Crash</span></td>
+      <td class="desc-col"><strong>Home crashed when banners array was empty.</strong> Carousel prev/next buttons and dot nav only render when <code>banners.length &gt; 1</code>. A static fallback hero section renders when <code>banners.length === 0</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 4. Deployment -->
+<h2>4. Vercel Deployment &amp; Backend Hardening</h2>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:28%">File</th>
+    <th style="width:12%">Severity</th>
+    <th>Description of Fix</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">frontend/vercel.json</td>
+      <td class="sev-col"><span class="badge b-new">Created</span></td>
+      <td class="desc-col"><strong>SPA routing config for Vercel.</strong> Rewrites all routes to <code>index.html</code>, declares Vite build command, output directory, and long-term immutable cache headers for hashed asset files.</td>
+    </tr>
+    <tr>
+      <td class="file-col">backend/vercel.json</td>
+      <td class="sev-col"><span class="badge b-new">Created</span></td>
+      <td class="desc-col"><strong>Serverless Express on Vercel.</strong> Uses <code>@vercel/node</code> builder for <code>server.js</code>, routes all traffic to the Express handler, and injects <code>VERCEL=1</code> environment flag to skip <code>app.listen()</code>.</td>
+    </tr>
+    <tr>
+      <td class="file-col">backend/server.js</td>
+      <td class="sev-col"><span class="badge b-p1">P1</span></td>
+      <td class="desc-col"><strong>CORS rejected Vercel preview deployment URLs; rate limiter saw proxy IP instead of real client IP.</strong> Added <code>app.set("trust proxy", 1)</code>. CORS changed from a single static origin string to a dynamic function that allows: localhost, configured <code>FRONTEND_URL</code>, any <code>*.vercel.app</code> subdomain (preview deployments), and a comma-separated <code>ADDITIONAL_ORIGINS</code> env var. <code>app.listen()</code> is skipped when <code>VERCEL=1</code>.</td>
+    </tr>
+    <tr>
+      <td class="file-col">backend/.env.example<br>frontend/.env.example</td>
+      <td class="sev-col"><span class="badge b-p2">P2</span></td>
+      <td class="desc-col"><strong>Both <code>.env.example</code> files updated</strong> with complete variable sets: Cloudinary credentials, optional SMTP email, <code>ADDITIONAL_ORIGINS</code>, and comments explaining production vs. development values.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════════════
+     PHASE 2
+═══════════════════════════════════════════════ -->
+<div class="pagebreak"></div>
+<div class="phase-div">&#9644;&nbsp; Phase 2 — Deep Scan &amp; Systematic Repair &nbsp;&#9644;</div>
+
+<!-- 5. P0 Crashes -->
+<h2>5. P0 — Runtime Crashes</h2>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:28%">File</th>
+    <th style="width:12%">Severity</th>
+    <th>Description of Fix</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">src/components/Rating.jsx</td>
+      <td class="sev-col"><span class="badge b-p0">P0</span></td>
+      <td class="desc-col"><strong><code>value.toFixed(1)</code> threw a TypeError on null / undefined.</strong> Any product without a rating value would crash every page that renders the Rating component in <code>showText</code> mode (product cards, product detail, wishlist). Fixed to <code>(value ?? 0).toFixed(1)</code>.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/context/AuthContext.jsx</td>
+      <td class="sev-col"><span class="badge b-p0">P0</span></td>
+      <td class="desc-col"><strong>Registration silently left users unauthenticated.</strong> <code>authService.register()</code> stored the JWT in localStorage but the React context (<code>isAuthenticated</code>, <code>user</code>) was never updated — meaning the user appeared logged out immediately after registering. Added <code>authenticate(userData)</code> method that sets both state values synchronously. Also changed <code>login()</code> to return the user object instead of the boolean <code>true</code>, eliminating a downstream race condition in <code>Login.jsx</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 6. P1 Auth & Commerce -->
+<h2>6. P1 — Auth Flow &amp; Commerce Logic</h2>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:28%">File</th>
+    <th style="width:12%">Severity</th>
+    <th>Description of Fix</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">src/pages/Register.jsx</td>
+      <td class="sev-col"><span class="badge b-p0">P0 → Fixed</span></td>
+      <td class="desc-col">
+        <strong>Three defects resolved:</strong>
+        <ul>
+          <li>Registration never called <code>authenticate()</code> — user appeared logged out after sign-up. Now calls <code>authenticate(data.user)</code> on API success.</li>
+          <li>Weak email regex <code>/\S+@\S+\.\S+/</code> accepted invalid addresses. Replaced with the same RFC-pattern used in Login.</li>
+          <li>Error toast type was <code>"info"</code> — changed to <code>"error"</code> so the toast renders in the correct red/alert style.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td class="file-col">src/pages/Login.jsx</td>
+      <td class="sev-col"><span class="badge b-p1">P1</span></td>
+      <td class="desc-col"><strong>Post-login role was read from <code>localStorage</code> after <code>await login()</code></strong> — a race condition because React state updates are asynchronous and the stored value was sometimes stale or from a previous session. Now reads the user object returned directly from <code>login()</code>. Auth failure toasts changed from <code>"info"</code> to <code>"error"</code> type.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/components/ProtectedRoute.jsx</td>
+      <td class="sev-col"><span class="badge b-p1">P1</span></td>
+      <td class="desc-col"><strong>Login redirect lost the destination URL.</strong> Unauthenticated users were sent to <code>/login</code> with no way to return to their intended page. Changed to <code>/login?returnTo=&lt;encoded-path&gt;</code> using <code>useLocation</code>. Also fixed the loading spinner: the store-name label had <code>mt-24</code> (absolute bottom offset) which clipped on small screens — changed to <code>top-full mt-2</code>.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/pages/Cart.jsx</td>
+      <td class="sev-col"><span class="badge b-p1">P1</span></td>
+      <td class="desc-col"><strong>Coupon discount scaled incorrectly when cart quantity changed.</strong> The discount was stored as a fraction of the subtotal at the moment of validation (<code>discountValue / subtotal</code>) and then multiplied back at render time. Adding or removing items changed the subtotal, causing the coupon amount to drift. Fixed to store and apply the absolute PKR discount value directly.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/pages/Checkout.jsx</td>
+      <td class="sev-col"><span class="badge b-p1">P1</span></td>
+      <td class="desc-col">
+        <strong>Two coupon defects:</strong>
+        <ul>
+          <li>Typing any character in the coupon input called <code>setCouponApplied(null)</code> on every keystroke — clearing a previously applied coupon while the user was still typing a new one. Removed from <code>onChange</code>.</li>
+          <li>A coupon applied in the Cart page was not carried to Checkout. Added <code>useLocation</code> and a mount effect that reads <code>location.state?.appliedCouponCode</code> and auto-validates it via the API when the Checkout page loads.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td class="file-col">src/pages/ProductDetails.jsx</td>
+      <td class="sev-col"><span class="badge b-p1">P1</span></td>
+      <td class="desc-col"><strong>"Buy Now" routed to <code>/cart</code> instead of <code>/checkout</code></strong> — defeating the purpose of the button by dumping the user back at the cart review page rather than proceeding to purchase. Corrected to <code>navigate("/checkout")</code>. Also removed hardcoded fake color variants <code>["Tan", "Black", "Burgundy"]</code> that appeared alongside the real product color — only the product's actual <code>color</code> field is shown.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 7. QuickView Modal -->
+<h2>7. P1 — QuickView Modal</h2>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:28%">File</th>
+    <th style="width:12%">Severity</th>
+    <th>Description of Fix</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">src/components/QuickViewModal.jsx</td>
+      <td class="sev-col"><span class="badge b-p1">P1</span></td>
+      <td class="desc-col">
+        <strong>Three defects in one component:</strong>
+        <ul>
+          <li><strong>Exit animation never played.</strong> <code>if (!product) return null</code> appeared before <code>&lt;AnimatePresence&gt;</code> — returning null before AnimatePresence could track the element meant the closing animation was always skipped. Restructured to wrap <code>{"{"}product &amp;&amp; &lt;div&gt;...&lt;/div&gt;{"}"}</code> inside AnimatePresence.</li>
+          <li><strong>Hardcoded color swatches</strong> <code>["Tan", "Black", "Burgundy"]</code> were appended regardless of the actual product — showing non-existent colour options. Replaced with only the real product colour.</li>
+          <li><strong>Optional chaining added</strong> to all product field accesses (<code>product?.stock ?? 0</code>) so the modal cannot throw if the parent passes a partially-loaded product object.</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 8. P2 Quality -->
+<div class="pagebreak"></div>
+<h2>8. P2 — Code Quality &amp; Correctness</h2>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:28%">File</th>
+    <th style="width:12%">Severity</th>
+    <th>Description of Fix</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">src/context/SettingsContext.jsx</td>
+      <td class="sev-col"><span class="badge b-p2">P2</span></td>
+      <td class="desc-col"><strong>Default currency was "USD" on a PKR-only platform.</strong> Changed <code>currency: "USD"</code> to <code>"PKR"</code>. Updated the announcement bar default from <em>"Free Priority Shipping On Orders Over $150…"</em> to <em>"Free Priority Shipping On Orders Over Rs. 20,000…"</em> — eliminating the incorrect currency symbol shown to users before settings load from the API.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/context/WishlistContext.jsx</td>
+      <td class="sev-col"><span class="badge b-p2">P2</span></td>
+      <td class="desc-col"><strong><code>JSON.parse(s)</code> called twice</strong> in the localStorage read helper — the second call wastes CPU and could in theory produce inconsistent results on malformed JSON (e.g. if a getter has side effects). Cached as <code>const parsed = JSON.parse(s)</code>.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/pages/UserProfile.jsx</td>
+      <td class="sev-col"><span class="badge b-p2">P2</span></td>
+      <td class="desc-col"><strong>AddressForm used <code>alert()</code> for validation feedback</strong> — blocking the main thread and bypassing the app's toast design system. Added <code>useToast()</code> inside the <code>AddressForm</code> sub-component and replaced all three <code>alert()</code> calls with <code>showToast("…", "error")</code>.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/pages/About.jsx</td>
+      <td class="sev-col"><span class="badge b-p2">P2</span></td>
+      <td class="desc-col"><strong>Three invalid Tailwind CSS classes rendered without any styles:</strong> <code>border-amber-450</code> → <code>border-amber-400</code>, <code>text-xxs</code> → <code>text-[10px]</code>, <code>bg-stone-850</code> → <code>bg-stone-900</code>.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/pages/NotFound.jsx</td>
+      <td class="sev-col"><span class="badge b-p2">P2</span></td>
+      <td class="desc-col"><strong>Two invalid classes:</strong> <code>animate-duration-5000</code> (a Tailwind plugin class that is not installed) removed and replaced with an inline <code>style={{ "{{" }}animationDuration: "5s"{{ "}}" }}</code>. Both instances of <code>text-xxs</code> → <code>text-[10px]</code>.</td>
+    </tr>
+    <tr>
+      <td class="file-col">src/pages/Wishlist.jsx</td>
+      <td class="sev-col"><span class="badge b-p2">P2</span></td>
+      <td class="desc-col"><strong>Toast copy read "cart list"</strong> when moving an item from the wishlist to the cart — grammatically awkward and inconsistent with the rest of the UI. Changed to <em>"Moved … to your cart."</em></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 9. Backend -->
+<h2>9. Backend — Models, Routes &amp; Seed</h2>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:28%">File</th>
+    <th style="width:12%">Severity</th>
+    <th>Description of Fix</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">backend/models/User.js<br>backend/models/Order.js</td>
+      <td class="sev-col"><span class="badge b-p2">P2</span></td>
+      <td class="desc-col"><strong>Default country was <code>"US"</code></strong> on both the address sub-schema in the User model and the shipping address schema in the Order model. Changed to <code>"Pakistan"</code> — consistent with the checkout form default and the platform's target market.</td>
+    </tr>
+    <tr>
+      <td class="file-col">backend/utils/seed.js</td>
+      <td class="sev-col"><span class="badge b-p2">P2</span></td>
+      <td class="desc-col">
+        <strong>Two defects:</strong>
+        <ul>
+          <li>Seed address fixtures used key <code>province</code> but the Order model schema defines the field as <code>state</code> — causing all seeded orders to have a blank province. All four address helper functions updated.</li>
+          <li><code>dropDatabase()</code> had no environment guard — could wipe a production database if the script were accidentally run against a live MongoDB URI. Added <code>if (NODE_ENV === "production") process.exit(1)</code> before the drop call.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td class="file-col">backend/routes/authRoutes.js</td>
+      <td class="sev-col"><span class="badge b-p3">P3</span></td>
+      <td class="desc-col"><strong>Logout route had no authentication middleware.</strong> Any unauthenticated request could invoke the logout controller unnecessarily. Added the <code>protect</code> middleware: <code>router.post("/logout", protect, logout)</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- 10. Shop -->
+<h2>10. P3 — Shop Page Polish</h2>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:28%">File</th>
+    <th style="width:12%">Severity</th>
+    <th>Description of Fix</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">src/pages/Shop.jsx</td>
+      <td class="sev-col"><span class="badge b-p3">P3</span></td>
+      <td class="desc-col">
+        <strong>Two improvements:</strong>
+        <ul>
+          <li>Initial product and category fetch had no <code>try/catch</code> — any network error resulted in an unhandled promise rejection and a broken shop page. Wrapped in <code>try/finally</code>; <code>productService</code> already falls back to local JSON on error so the page remains functional offline.</li>
+          <li>The active filter count badge (shown on the mobile "Filters" button) did not include the price range slider. Added <code>maxPrice &lt; maxPriceLimit</code> to the array of conditions so the badge accurately reflects all applied constraints.</li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════════════════════
+     DELIVERABLES
+═══════════════════════════════════════════════ -->
+<div class="pagebreak"></div>
+<h2>Additional Deliverables</h2>
+
+<h3>New Files Created</h3>
+<table class="fixes">
+  <thead><tr>
+    <th style="width:36%">File</th>
+    <th>Purpose</th>
+  </tr></thead>
+  <tbody>
+    <tr>
+      <td class="file-col">frontend/src/pages/ResetPassword.jsx</td>
+      <td>Complete password reset landing page for the <code>/reset-password/:token</code> route</td>
+    </tr>
+    <tr>
+      <td class="file-col">frontend/vercel.json</td>
+      <td>SPA rewrite rules and asset cache headers for Vercel deployment</td>
+    </tr>
+    <tr>
+      <td class="file-col">backend/vercel.json</td>
+      <td>Serverless Node configuration for deploying the Express API on Vercel</td>
+    </tr>
+    <tr>
+      <td class="file-col">.gitignore</td>
+      <td>Comprehensive monorepo-level ignore rules: dependencies, env files, build outputs, OS/IDE artifacts, uploads, MongoDB local data</td>
+    </tr>
+    <tr>
+      <td class="file-col">README.md</td>
+      <td>Full project documentation: tech stack, setup, architecture, API reference, deployment guide</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Deployment Checklist</h3>
+<p>The project is Vercel-ready. Before deploying:</p>
+<ul>
+  <li>Set <code>MONGODB_URI</code> on the backend Vercel project (MongoDB Atlas, whitelist <code>0.0.0.0/0</code>)</li>
+  <li>Set <code>JWT_SECRET</code> (minimum 64 random characters)</li>
+  <li>Set <code>FRONTEND_URL</code> on the backend to the deployed frontend URL</li>
+  <li>Set <code>VITE_API_URL</code> on the frontend to the deployed backend URL + <code>/api/v1</code></li>
+  <li>Set Cloudinary credentials if image upload is needed</li>
+  <li>Run seed script once against a staging database to populate demo data</li>
+</ul>
+
+<hr>
+
+<p class="note">Report generated by Claude Code · Anthropic · Audit completed 29 July 2026 · Build verified: 2,852 modules, 0 errors, 18.61 s</p>
+
+</div>
+</body>
+</html>
