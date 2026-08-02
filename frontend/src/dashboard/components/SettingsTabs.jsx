@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Save, Shield, MapPin, Palette, Settings, User, Search, Trash2, Copy, ImageIcon, Eye } from "lucide-react";
+import { useState, useRef } from "react";
+import { Save, Shield, MapPin, Palette, Settings, User, Search, Trash2, Copy, ImageIcon, Eye, Upload, Link2, Loader2, Plus } from "lucide-react";
 import { adminService } from "../../services/adminService";
 import { authService } from "../../services/authService";
 import ImageUpload from "../../components/ImageUpload";
@@ -114,30 +114,65 @@ export default function SettingsTabs({
  }
  };
 
- const [mediaSearch, setMediaSearch] = useState("");
- const [newMediaUrl, setNewMediaUrl] = useState("");
+  const mediaInputRef = useRef(null);
+  const [mediaSearch, setMediaSearch] = useState("");
+  const [newMediaUrl, setNewMediaUrl] = useState("");
+  const [mediaAddMode, setMediaAddMode] = useState("upload");
+  const [mediaUploading, setMediaUploading] = useState(false);
+  const [mediaUploadProgress, setMediaUploadProgress] = useState(0);
+  const [mediaDragging, setMediaDragging] = useState(false);
 
- const handleAddMedia = (e) => {
- e.preventDefault();
- if (!newMediaUrl.trim()) return;
- const newList = [newMediaUrl.trim(), ...mediaLibrary];
- onSaveMediaLibrary(newList);
- setNewMediaUrl("");
- triggerToast("New campaign asset cached in gallery library", "success");
- };
+  // Backward-compat: existing items may be plain URL strings or { url, publicId } objects
+  const normalizeMediaItem = (item) =>
+    typeof item === "string" ? { url: item, publicId: null, name: null } : item;
 
- const handleDeleteMedia = (url) => {
- const confirmation = window.confirm("Evict this photo image asset from the media catalog?");
- if (confirmation) {
- onSaveMediaLibrary(mediaLibrary.filter((m) => m !== url));
- triggerToast("Asset removed", "info");
- }
- };
+  const handleUploadMedia = async (file) => {
+    if (!file) return;
+    const allowed = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/avif"];
+    if (!allowed.includes(file.type)) { triggerToast("Only image files are allowed", "info"); return; }
+    if (file.size > 10 * 1024 * 1024) { triggerToast("Image must be under 10 MB", "info"); return; }
+    setMediaUploading(true);
+    setMediaUploadProgress(10);
+    try {
+      const ticker = setInterval(() => setMediaUploadProgress((p) => Math.min(p + 8, 85)), 300);
+      const result = await adminService.uploadImage(file, "general");
+      clearInterval(ticker);
+      setMediaUploadProgress(100);
+      if (result?.url) {
+        const newItem = { url: result.url, publicId: result.publicId || null, name: file.name };
+        onSaveMediaLibrary([newItem, ...mediaLibrary]);
+        triggerToast("Image uploaded and saved to media library", "success");
+      }
+    } catch (err) {
+      triggerToast(err?.response?.data?.message || "Upload failed", "info");
+    } finally {
+      setMediaUploading(false);
+      setTimeout(() => setMediaUploadProgress(0), 600);
+    }
+  };
 
- const handleCopyUrl = (url) => {
- navigator.clipboard.writeText(url);
- triggerToast("Image public URL copied to clipboard!", "success");
- };
+  const handleAddMedia = (e) => {
+    e.preventDefault();
+    if (!newMediaUrl.trim()) return;
+    onSaveMediaLibrary([{ url: newMediaUrl.trim(), publicId: null, name: null }, ...mediaLibrary]);
+    setNewMediaUrl("");
+    triggerToast("Image URL added to media library", "success");
+  };
+
+  const handleDeleteMedia = async (item) => {
+    const { url, publicId } = normalizeMediaItem(item);
+    if (!window.confirm("Remove this image from the media library?")) return;
+    onSaveMediaLibrary(mediaLibrary.filter((m) => normalizeMediaItem(m).url !== url));
+    if (publicId) {
+      try { await adminService.deleteImage(publicId); } catch { /* silent — image may already be removed */ }
+    }
+    triggerToast("Image removed from library", "info");
+  };
+
+  const handleCopyUrl = (item) => {
+    navigator.clipboard.writeText(normalizeMediaItem(item).url);
+    triggerToast("Image URL copied to clipboard!", "success");
+  };
 
  return (
  <div className="bg-white rounded-2xl border border-stone-100 shadow-xs p-6" id="settings-tabs-master">
@@ -282,71 +317,196 @@ export default function SettingsTabs({
  </div>
  )}
 
- {/* ================= MEDIA LIBRARY TAB ================= */}
- {subTab === "media" && (
- <div className="space-y-6" id="media-library-grid-panel">
- <div>
- <h3 className="font-sans font-bold text-stone-900 text-sm mb-1">Centralized Brand Assets</h3>
- <p className="text-xs text-stone-400 font-medium">Upload, search, and copy beautiful campaign photoshoot imagery links to product forms.</p>
- </div>
+  {/* ================= MEDIA LIBRARY TAB ================= */}
+  {subTab === "media" && (
+    <div className="space-y-6" id="media-library-grid-panel">
 
- <form onSubmit={handleAddMedia} className="flex gap-2 max-w-xl">
- <input
- type="url"
- required
- placeholder="Inject new photography Unsplash or asset address..."
- className="flex-1 px-4 py-2 border border-stone-200 rounded-xl text-xs focus:outline-none focus:border-amber-500 font-medium"
- value={newMediaUrl}
- onChange={(e) => setNewMediaUrl(e.target.value)}
- />
- <button
- type="submit"
- className="px-4 py-2 bg-stone-900 hover:bg-stone-850 text-white rounded-xl text-xs font-bold tracking-wide flex items-center gap-1 flex-shrink-0"
- >
- Add Asset Link
- </button>
- </form>
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="font-sans font-bold text-stone-900 text-sm mb-1">Media Library</h3>
+          <p className="text-xs text-stone-400 font-medium">
+            Upload images to Cloudinary (auto-converted to WebP) or add by URL.
+            Copy any link to reuse in products, banners, or anywhere across the dashboard.
+          </p>
+        </div>
+        <span className="shrink-0 text-[10px] font-mono text-stone-400 bg-stone-50 border border-stone-200 px-2 py-1 rounded-lg whitespace-nowrap">
+          {mediaLibrary.length} assets
+        </span>
+      </div>
 
- <div className="relative max-w-xs">
- <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
- <input
- type="text"
- placeholder="Filter image source links..."
- className="w-full pl-9 pr-4 py-1.5 border border-stone-200 rounded-xl text-xs focus:outline-none focus:border-amber-500 bg-stone-50/30"
- value={mediaSearch}
- onChange={(e) => setMediaSearch(e.target.value)}
- />
- </div>
+      {/* Mode toggle */}
+      <div className="flex gap-1 p-1 bg-stone-100 rounded-xl w-fit">
+        <button
+          type="button"
+          onClick={() => setMediaAddMode("upload")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            mediaAddMode === "upload" ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700"
+          }`}
+        >
+          <Upload className="w-3.5 h-3.5" /> Upload File
+        </button>
+        <button
+          type="button"
+          onClick={() => setMediaAddMode("url")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+            mediaAddMode === "url" ? "bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700"
+          }`}
+        >
+          <Link2 className="w-3.5 h-3.5" /> Add URL
+        </button>
+      </div>
 
- <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 pt-2">
- {mediaLibrary
- .filter((url) => url.toLowerCase().includes(mediaSearch.toLowerCase()))
- .map((url, index) => (
- <div key={index} className="aspect-square relative rounded-xl border border-stone-200 overflow-hidden group bg-stone-50 shadow-xs flex flex-col justify-end">
- <img src={url} alt="" referrerPolicy="no-referrer" className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-102 transition-transform" />
- <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 z-10">
- <button
- type="button"
- onClick={() => handleCopyUrl(url)}
- className="p-1.5 bg-white text-stone-900 hover:bg-amber-500 hover:text-stone-950 rounded-lg shadow-xs transition-colors"
- title="Copy URL link"
- >
- <Copy className="w-3.5 h-3.5" />
- </button>
- <button
- type="button"
- onClick={() => handleDeleteMedia(url)}
- className="p-1.5 bg-white text-rose-600 hover:bg-rose-550 hover:text-white rounded-lg shadow-xs transition-colors"
- title="Evict Asset"
- >
- <Trash2 className="w-3.5 h-3.5" />
- </button>
- </div>
- </div>
- ))}
- </div>
- </div>
- )}
+      {/* Upload dropzone */}
+      {mediaAddMode === "upload" && (
+        <div className="max-w-lg">
+          <div
+            role="button"
+            tabIndex={0}
+            className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-8 transition-all duration-200 select-none ${
+              mediaUploading
+                ? "border-amber-300 bg-amber-50 cursor-wait"
+                : mediaDragging
+                ? "border-amber-500 bg-amber-50 scale-[1.01]"
+                : "border-stone-200 bg-stone-50 hover:border-amber-400 hover:bg-amber-50/40 cursor-pointer"
+            }`}
+            onClick={() => !mediaUploading && mediaInputRef.current?.click()}
+            onKeyDown={(e) => e.key === "Enter" && !mediaUploading && mediaInputRef.current?.click()}
+            onDragOver={(e) => { e.preventDefault(); setMediaDragging(true); }}
+            onDragLeave={() => setMediaDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setMediaDragging(false);
+              if (!mediaUploading) handleUploadMedia(e.dataTransfer.files[0]);
+            }}
+          >
+            {mediaUploading ? (
+              <>
+                <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+                <div className="w-44 h-1.5 bg-stone-200 rounded-full overflow-hidden">
+                  <div className="h-full bg-amber-500 rounded-full transition-all duration-300" style={{ width: `${mediaUploadProgress}%` }} />
+                </div>
+                <p className="text-xs text-stone-500 font-semibold">Uploading to Cloudinary… {mediaUploadProgress}%</p>
+              </>
+            ) : (
+              <>
+                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                  <Upload className="w-6 h-6 text-amber-600" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-stone-700">
+                    Click to upload <span className="text-amber-600">or drag & drop</span>
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1">JPG, PNG, WEBP, GIF — max 10 MB · Stored as WebP in Cloudinary</p>
+                </div>
+              </>
+            )}
+          </div>
+          <input
+            ref={mediaInputRef}
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp,image/avif"
+            className="hidden"
+            disabled={mediaUploading}
+            onChange={(e) => { handleUploadMedia(e.target.files[0]); e.target.value = ""; }}
+          />
+        </div>
+      )}
+
+      {/* URL input */}
+      {mediaAddMode === "url" && (
+        <form onSubmit={handleAddMedia} className="flex gap-2 max-w-lg">
+          <div className="relative flex-1">
+            <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
+            <input
+              type="url"
+              required
+              placeholder="https://example.com/image.jpg"
+              className="w-full pl-9 pr-4 py-2 border border-stone-200 rounded-xl text-xs focus:outline-none focus:border-amber-500 font-medium"
+              value={newMediaUrl}
+              onChange={(e) => setNewMediaUrl(e.target.value)}
+            />
+          </div>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-stone-900 hover:bg-stone-700 text-white rounded-xl text-xs font-bold tracking-wide flex items-center gap-1.5 shrink-0"
+          >
+            <Plus className="w-3.5 h-3.5" /> Add URL
+          </button>
+        </form>
+      )}
+
+      {/* Search */}
+      <div className="relative max-w-xs">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-stone-400" />
+        <input
+          type="text"
+          placeholder="Search assets…"
+          className="w-full pl-9 pr-4 py-1.5 border border-stone-200 rounded-xl text-xs focus:outline-none focus:border-amber-500 bg-stone-50/30"
+          value={mediaSearch}
+          onChange={(e) => setMediaSearch(e.target.value)}
+        />
+      </div>
+
+      {/* Grid */}
+      {mediaLibrary.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-14 h-14 rounded-full bg-stone-100 flex items-center justify-center mb-3">
+            <ImageIcon className="w-7 h-7 text-stone-300" />
+          </div>
+          <p className="text-sm font-semibold text-stone-400">No assets yet</p>
+          <p className="text-xs text-stone-300 mt-1">Upload an image or add a URL above to get started</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 pt-1">
+          {mediaLibrary
+            .filter((item) => normalizeMediaItem(item).url.toLowerCase().includes(mediaSearch.toLowerCase()))
+            .map((item, index) => {
+              const { url } = normalizeMediaItem(item);
+              return (
+                <div
+                  key={index}
+                  className="aspect-square relative rounded-xl border border-stone-200 overflow-hidden group bg-stone-50 shadow-xs"
+                >
+                  <img
+                    src={url} alt=""
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-end justify-center gap-1 pb-2">
+                    <button
+                      type="button"
+                      onClick={() => handleCopyUrl(item)}
+                      className="p-1.5 bg-white/90 text-stone-800 hover:bg-amber-500 hover:text-stone-950 rounded-lg transition-colors"
+                      title="Copy URL"
+                    >
+                      <Copy className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => window.open(url, "_blank")}
+                      className="p-1.5 bg-white/90 text-stone-600 hover:bg-stone-100 rounded-lg transition-colors"
+                      title="Preview"
+                    >
+                      <Eye className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteMedia(item)}
+                      className="p-1.5 bg-white/90 text-rose-500 hover:bg-rose-500 hover:text-white rounded-lg transition-colors"
+                      title="Remove"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      )}
+    </div>
+  )}
 
  {/* ================= APPEARANCE SETTINGS TAB ================= */}
  {subTab === "appearance" && (
