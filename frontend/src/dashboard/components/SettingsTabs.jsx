@@ -133,10 +133,12 @@ export default function SettingsTabs({
     if (file.size > 10 * 1024 * 1024) { triggerToast("Image must be under 10 MB", "info"); return; }
     setMediaUploading(true);
     setMediaUploadProgress(10);
+    let ticker;
     try {
-      const ticker = setInterval(() => setMediaUploadProgress((p) => Math.min(p + 8, 85)), 300);
+      ticker = setInterval(() => setMediaUploadProgress((p) => Math.min(p + 8, 85)), 300);
       const result = await adminService.uploadImage(file, "general");
       clearInterval(ticker);
+      ticker = null;
       setMediaUploadProgress(100);
       if (result?.url) {
         const newItem = { url: result.url, publicId: result.publicId || null, name: file.name };
@@ -146,6 +148,7 @@ export default function SettingsTabs({
     } catch (err) {
       triggerToast(err?.response?.data?.message || "Upload failed", "info");
     } finally {
+      clearInterval(ticker);
       setMediaUploading(false);
       setTimeout(() => setMediaUploadProgress(0), 600);
     }
@@ -460,7 +463,11 @@ export default function SettingsTabs({
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 pt-1">
           {mediaLibrary
-            .filter((item) => normalizeMediaItem(item).url.toLowerCase().includes(mediaSearch.toLowerCase()))
+            .filter((item) => {
+              const { url, name } = normalizeMediaItem(item);
+              const q = mediaSearch.toLowerCase();
+              return url.toLowerCase().includes(q) || (name && name.toLowerCase().includes(q));
+            })
             .map((item, index) => {
               const { url } = normalizeMediaItem(item);
               return (
